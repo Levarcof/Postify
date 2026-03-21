@@ -58,30 +58,31 @@ export default function MobileNav() {
   if (isConversation) return null;
 
   return (
-    <div className="lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-sm z-[100] animate-in slide-in-from-bottom duration-500">
-      <nav className="bg-[#0c0c14]/80 backdrop-blur-2xl border border-white/10 h-16 rounded-[2rem] flex items-center justify-around px-2 shadow-2xl shadow-black/50 overflow-hidden">
+    <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-sm z-[100] animate-in slide-in-from-bottom duration-700">
+      <nav className="bg-[#0c0c14]/60 backdrop-blur-2xl border border-white/10 h-[4.5rem] rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl shadow-black/80 ring-1 ring-white/5">
         {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             className={({ isActive }) => `
-              relative flex flex-col items-center justify-center gap-1 w-full h-full transition-all duration-500
-              ${isActive ? "text-indigo-400" : "text-white/30 hover:text-white/50"}
+              relative flex flex-col items-center justify-center h-full w-14 transition-all duration-500
+              ${isActive ? "text-indigo-400 scale-110" : "text-white/20 hover:text-white/40"}
             `}
           >
             {({ isActive }) => (
               <>
-                <div className={`transition-all duration-300 transform ${isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'} relative`}>
+                <div className={`transition-all duration-500 ${isActive ? 'translate-y-[-4px]' : 'translate-y-0'}`}>
                   {item.icon}
                   {item.name === 'Notifications' && unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0c0c14] animate-pulse" />
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-[#0c0c14] shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
                   )}
                 </div>
-                <span className={`text-[9px] font-black uppercase tracking-[0.15em] transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'}`}>
-                  {item.name}
-                </span>
+                
                 {isActive && (
-                  <div className="absolute -bottom-1 w-8 h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                  <>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-[2px] bg-gradient-to-r from-transparent via-indigo-500 to-transparent blur-[1px]" />
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-indigo-500 rounded-full shadow-[0_0_12px_rgba(99,102,241,1)]" />
+                  </>
                 )}
               </>
             )}

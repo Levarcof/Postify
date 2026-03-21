@@ -122,7 +122,7 @@ export default function UserProfile() {
   return (
     <div className="w-full pb-20 relative">
       {/* Mobile Hamburger Menu */}
-      <div className="lg:hidden absolute top-0 right-0 p-4 z-50">
+      {/* <div className="lg:hidden absolute top-0 right-0 p-4 z-50">
         <button 
           onClick={() => setIsDrawerOpen(true)}
           className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/5 transition-all"
@@ -131,7 +131,7 @@ export default function UserProfile() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button>
-      </div>
+      </div> */}
 
       {/* Drawer Overlay */}
       {isDrawerOpen && (

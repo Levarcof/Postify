@@ -1,7 +1,7 @@
 import express from "express"
 import { registerUser, verifyOtp,forgetPassword,verifyPassword,updatePassword,login ,logout ,checkSession} from "../controllers/useController.js"
 import { postText, feedPost, likePost, unlikePost, commentPost, deleteComment, deletePost } from "../controllers/postController.js"
-import { getProfile, searchUsers, getPublicProfile, followUser, unfollowUser, getConnections } from "../controllers/userController.js"
+import { getProfile, searchUsers, getPublicProfile, followUser, unfollowUser, getConnections, updateProfile } from "../controllers/userController.js"
 import { conversationUsers, createConversation, getMessages, sendMessage, deleteConversation } from "../controllers/chatController.js"
 import { createNotification, getNotifications, removeNotification, markAsRead } from "../controllers/notificationController.js"
 
@@ -37,6 +37,7 @@ router.get("/messages/:conversationId", getMessages)
 router.post("/sendMessage", sendMessage)
 router.post("/deleteConversation", deleteConversation)
 router.get("/getConnections/:userId", getConnections)
+router.post("/updateProfile", updateProfile)
 
 // 🔔 Notification Routes
 router.post("/notification", createNotification)

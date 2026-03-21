@@ -253,3 +253,37 @@ export const getConnections = async (req, res) => {
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
+// 📝 Update Profile
+export const updateProfile = async (req, res) => {
+  try {
+    const { firstName, lastName, image } = req.body;
+    const sessionId = req.cookies.sessionId;
+
+    if (!sessionId) return res.status(401).json({ success: false, message: "Unauthorized" });
+    const session = await Session.findById(sessionId);
+    if (!session) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const updatedUser = await User.findByIdAndUpdate(
+      session.userId,
+      { 
+        $set: { 
+          firstName: firstName || undefined, 
+          lastName: lastName || undefined,
+          image: image || undefined 
+        } 
+      },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) return res.status(404).json({ success: false, message: "User not found" });
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error("Update Profile Error:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};

@@ -52,7 +52,10 @@ export const getNotifications = async (req, res) => {
       .populate("postId", "content image")
       .sort({ createdAt: -1 });
 
-    return res.status(200).json({ success: true, notifications });
+    // Filter out notifications where the post has been deleted
+    const filteredNotifications = notifications.filter(notif => !notif.postId === false || (notif.postId && notif.postId._id));
+
+    return res.status(200).json({ success: true, notifications: filteredNotifications });
   } catch (error) {
     console.error("Get Notifications Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });

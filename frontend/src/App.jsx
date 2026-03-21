@@ -10,54 +10,66 @@ import SearchPage from './pages/SearchPage'
 import Conversation from './pages/Conversation'
 import Settings from './pages/Settings'
 import Notifications from './components/Notifications'
+import ProtectedRoute from './components/ProtectedRoute'
+import AuthRedirect from './components/AuthRedirect'
 
 function App() {
   const router = createBrowserRouter([
     {
-      path: '/',
-      element: <MainLayout />,
+      element: <ProtectedRoute />,
       children: [
         {
-          index: true,
-          element: <Feed />
-        },
-        {
-          path: 'profile',
-          element: <Profile />
-        },
-        {
-          path: 'search',
-          element: <SearchPage />
-        },
-        {
-          path: 'user/:userName',
-          element: <UserProfile />
-        },
-        {
-          path: 'messages',
-          element: <Conversation />
-        },
-        {
-          path: 'conversation/:conversationId',
-          element: <Conversation />
-        },
-        {
-          path: 'settings',
-          element: <Settings />
-        },
-        {
-          path: 'notifications',
-          element: <Notifications />
+          path: '/',
+          element: <MainLayout />,
+          children: [
+            {
+              index: true,
+              element: <Feed />
+            },
+            {
+              path: 'profile',
+              element: <Profile />
+            },
+            {
+              path: 'search',
+              element: <SearchPage />
+            },
+            {
+              path: 'user/:userName',
+              element: <UserProfile />
+            },
+            {
+              path: 'messages',
+              element: <Conversation />
+            },
+            {
+              path: 'conversation/:conversationId',
+              element: <Conversation />
+            },
+            {
+              path: 'settings',
+              element: <Settings />
+            },
+            {
+              path: 'notifications',
+              element: <Notifications />
+            }
+          ]
         }
       ]
     },
     {
-      path: '/register',
-      element: <Registration />
-    },
-    {
-      path: '/login',
-      element: <Login />
+      element: <AuthRedirect />,
+      children: [
+        {
+          path: '/register',
+          element: <Registration />
+        },
+        {
+          path: '/login',
+          element: <Login />
+        }
+      ]
     }
   ])
 

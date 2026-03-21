@@ -50,90 +50,142 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
     }
   };
 
+  const groupNotifications = (notifs) => {
+    const now = new Date();
+    const groups = {
+      New: [],
+      Today: [],
+      Yesterday: [],
+      Earlier: []
+    };
+
+    notifs.forEach(notif => {
+      const createdDate = new Date(notif.createdAt);
+      const diffInHours = (now - createdDate) / (1000 * 60 * 60);
+
+      if (!notif.isRead) {
+        groups.New.push(notif);
+      } else if (diffInHours < 24) {
+        groups.Today.push(notif);
+      } else if (diffInHours < 48) {
+        groups.Yesterday.push(notif);
+      } else {
+        groups.Earlier.push(notif);
+      }
+    });
+
+    return groups;
+  };
+
   const handleNotificationClick = (notif) => {
     if (onClose) onClose();
     navigate('/');
   };
 
+  const grouped = groupNotifications(notifications);
+
   return (
-    <div className={`flex flex-col h-full bg-[#0c0c14]/40 backdrop-blur-3xl text-white ${isSidebar ? 'w-full' : 'min-h-screen pt-8 pb-32 px-4 sm:px-8'}`}>
-      <div className={`flex items-center justify-between mb-10 ${isSidebar ? 'p-8 pb-0' : 'max-w-2xl mx-auto w-full pt-16 sm:pt-0'}`}>
-        <h2 className="text-3xl font-black italic tracking-tighter text-white">Activity</h2>
+    <div className={`flex flex-col h-full bg-[#0c0c14] text-white ${isSidebar ? 'w-full' : 'min-h-screen pb-32'}`}>
+      {/* Header */}
+      <div className={`flex items-center justify-between border-b border-white/5 bg-black/20 backdrop-blur-3xl sticky top-0 z-10 ${isSidebar ? 'p-6' : 'px-8 py-6'}`}>
+        <h2 className="text-xl font-black italic tracking-tight text-white/90">Activity</h2>
         {isSidebar && (
-          <button onClick={onClose} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-2xl text-white/40 hover:text-white transition-all transform hover:scale-110">
+          <button onClick={onClose} className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-all">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         )}
       </div>
 
-      <div className={`flex-1 overflow-y-auto custom-scrollbar ${isSidebar ? 'px-6 pb-8' : 'max-w-2xl mx-auto w-full'}`}>
+      <div className={`flex-1 overflow-y-auto custom-scrollbar ${isSidebar ? 'px-2' : 'max-w-2xl mx-auto w-full pt-4'}`}>
         {loading ? (
-          <div className="space-y-6">
-            {[1, 2, 3, 4, 5].map(i => (
+          <div className="space-y-4 px-4">
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} className="flex gap-4 p-2 items-center">
-                <div className="w-14 h-14 bg-white/5 rounded-2xl animate-pulse" />
+                <div className="w-11 h-11 bg-white/[0.03] rounded-full animate-pulse" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-white/5 rounded w-1/3 animate-pulse" />
-                  <div className="h-3 bg-white/5 rounded w-2/3 animate-pulse" />
+                  <div className="h-3 bg-white/[0.03] rounded w-1/3 animate-pulse" />
+                  <div className="h-2 bg-white/[0.03] rounded w-1/2 animate-pulse" />
                 </div>
               </div>
             ))}
           </div>
         ) : notifications.length > 0 ? (
-          <div className="space-y-2">
-            {notifications.map((notif) => (
-              <div 
-                key={notif._id} 
-                className={`
-                  relative flex gap-4 p-4 rounded-[1.8rem] transition-all duration-500 hover:bg-white/[0.06] group cursor-pointer border border-transparent hover:border-white/5
-                  ${!notif.isRead ? 'after:content-[""] after:absolute after:right-6 after:top-1/2 after:-translate-y-1/2 after:w-2.5 after:h-2.5 after:bg-indigo-500 after:rounded-full after:shadow-[0_0_10px_rgba(99,102,241,0.5)]' : ''}
-                `}
-                onClick={() => handleNotificationClick(notif)}
-              >
-                <div 
-                  className="w-12 h-12 rounded-[1.2rem] bg-white/5 border border-white/10 overflow-hidden shrink-0 transform group-hover:scale-105 transition-all duration-500 shadow-xl"
-                  onClick={(e) => { e.stopPropagation(); navigate(`/user/${notif.sender.userName}`); }}
-                >
-                  {notif.sender.userId?.image ? <img src={notif.sender.userId.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
-                </div>
-                
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex flex-wrap items-baseline gap-1.5 pt-0.5">
-                    <span className="text-white font-bold text-[13px] tracking-tight hover:text-indigo-400" onClick={(e) => { e.stopPropagation(); navigate(`/user/${notif.sender.userName}`); }}>
-                      {notif.sender.userId?.firstName} {notif.sender.userId?.lastName}
-                    </span>
-                    <span className="text-white/40 text-[12px] tracking-tight">
-                      {notif.type === 'like' ? 'liked your post' : 'commented on your post'}
-                    </span>
-                  </div>
-                  
-                  {notif.type === 'comment' && (
-                    <p className="text-white/30 text-[11px] mt-1.5 italic tracking-tight line-clamp-1 border-l border-indigo-500/30 pl-3 py-0.5 bg-indigo-500/[0.02] rounded-r-lg">
-                      "{notif.commentText}"
-                    </p>
-                  )}
-                  
-                  <span className="text-white/20 text-[9px] uppercase font-black tracking-widest mt-2 block opacity-60">
-                    {new Date(notif.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
+          <div className="pb-8">
+            {Object.entries(grouped).map(([title, items]) => {
+              if (items.length === 0) return null;
+              return (
+                <div key={title} className="mb-6">
+                  <h3 className="px-6 py-3 text-[12px] font-black uppercase tracking-[0.2em] text-white/20">{title}</h3>
+                  <div className="space-y-0.5">
+                    {items.map((notif) => (
+                      <div 
+                        key={notif._id} 
+                        className="flex items-center gap-4 px-6 py-3.5 hover:bg-white/[0.03] transition-all group cursor-pointer relative"
+                        onClick={() => handleNotificationClick(notif)}
+                      >
+                        <div 
+                          className="w-11 h-11 rounded-full overflow-hidden bg-white/5 border border-white/5 shrink-0"
+                          onClick={(e) => { e.stopPropagation(); navigate(`/user/${notif.sender.userName}`); }}
+                        >
+                          {notif.sender.userId?.image ? <img src={notif.sender.userId.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-lg">👤</div>}
+                        </div>
+                        
+                        <div className="flex-1 min-w-0 pr-4">
+                          <p className="text-[13px] leading-tight text-white/80">
+                            <span className="text-white font-bold hover:text-indigo-400 mr-1.5 cursor-pointer"
+                              onClick={(e) => { e.stopPropagation(); navigate(`/user/${notif.sender.userName}`); }}
+                            >
+                              {notif.sender.userName}
+                            </span>
+                            <span className="text-white/50">
+                              {notif.type === 'like' ? 'liked your story.' : 'commented on your story.'}
+                            </span>
+                          </p>
+                          <p className="text-white/20 text-[10.5px] font-bold tracking-wide mt-1 uppercase">
+                            {(() => {
+                              const d = new Date(notif.createdAt);
+                              const now = new Date();
+                              const diff = (now - d) / 1000;
+                              if (diff < 60) return 'Just now';
+                              if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+                              if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+                              return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+                            })()}
+                          </p>
+                          
+                          {notif.type === 'comment' && (
+                            <p className="text-white/30 text-[12px] mt-1.5 line-clamp-1 border-l-2 border-white/5 pl-3">
+                              "{notif.commentText}"
+                            </p>
+                          )}
+                        </div>
 
-                {notif.postId && (
-                  <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/5 grayscale group-hover:grayscale-0 transition-all duration-700 bg-white/[0.02] flex items-center justify-center">
-                    {notif.postId.image ? (
-                      <img src={notif.postId.image} alt="" className="w-full h-full object-cover opacity-30 group-hover:opacity-100" />
-                    ) : (
-                      <span className="text-[8px] text-white/10 px-1 line-clamp-2 text-center leading-tight">{notif.postId.content}</span>
-                    )}
+                        {notif.postId && (
+                          <div className="w-11 h-11 rounded-md overflow-hidden shrink-0 border border-white/5 bg-white/[0.01]">
+                            {notif.postId.image ? (
+                              <img src={notif.postId.image} alt="" className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-white/[0.02] p-1.5">
+                                <span className="text-[7px] text-white/10 line-clamp-3 text-center leading-none tracking-tight">{notif.postId.content}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        
+                        {!notif.isRead && (
+                          <div className="absolute right-4 w-2 h-2 bg-indigo-500 rounded-full shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                        )}
+                      </div>
+                    ))}
                   </div>
-                )}
-              </div>
-            ))}
+                </div>
+              );
+            })}
           </div>
         ) : (
           <div className="h-64 flex flex-col items-center justify-center opacity-10">
-            <svg className="w-24 h-24 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-            <span className="text-lg font-black italic uppercase tracking-widest">Quiet in the universe</span>
+            <svg className="w-16 h-16 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+            <span className="text-sm font-black italic uppercase tracking-[0.3em] text-center px-8">Your universe is currently silent</span>
           </div>
         )}
       </div>
