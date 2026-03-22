@@ -45,7 +45,7 @@ export default function CreatePost({ onPostCreated }) {
   return (
     <div className={`relative transition-all duration-500 mb-8 ${isFocused ? 'scale-[1.005]' : 'scale-100'}`}>
       <div className={`absolute -inset-0.5 bg-gradient-to-r from-indigo-500/20 to-purple-600/20 rounded-[2rem] blur-xl transition-opacity duration-700 ${isFocused ? 'opacity-100' : 'opacity-0'}`} />
-      
+
       <div className="relative bg-[#0c0c14]/40 backdrop-blur-2xl border border-white/5 rounded-[2rem] overflow-hidden shadow-xl transition-all duration-500 hover:border-white/10">
         <div className="p-6">
           {/* User Row - Compact */}

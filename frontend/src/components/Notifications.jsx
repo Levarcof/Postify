@@ -138,7 +138,9 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
                               {notif.sender.userName}
                             </span>
                             <span className="text-white/50">
-                              {notif.type === 'like' ? 'liked your story.' : 'commented on your story.'}
+                              {notif.type === 'like' ? 'liked your story.' : 
+                               notif.type === 'follow' ? 'started following you.' : 
+                               'commented on your story.'}
                             </span>
                           </p>
                           <p className="text-white/20 text-[10.5px] font-bold tracking-wide mt-1 uppercase">

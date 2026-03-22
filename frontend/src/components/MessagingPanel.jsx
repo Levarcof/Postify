@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function MessagingPanel() {
   const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -18,7 +19,18 @@ export default function MessagingPanel() {
         setLoading(false);
       }
     };
+
+    const fetchCurrentUser = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+        if (res.data.success) setCurrentUser(res.data.user);
+      } catch (err) {
+        console.error("Fetch current user error:", err);
+      }
+    };
+
     fetchUsers();
+    fetchCurrentUser();
   }, []);
 
   return (
@@ -63,11 +75,34 @@ export default function MessagingPanel() {
                 <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0c0c14]" />
               </div>
               <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-[15px] font-bold truncate group-hover:text-indigo-100 transition-colors">{user.firstName} {user.lastName}</span>
-                  <span className="text-[10px] text-white/10 group-hover:text-white/20 transition-colors uppercase font-black">Just now</span>
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className="text-white text-[15px] font-bold truncate group-hover:text-indigo-100 transition-colors">
+                    {user.firstName} {user.lastName}
+                  </span>
+                  {user.lastMessage && (
+                    <span className="text-[10px] text-white/20 group-hover:text-white/40 transition-colors uppercase font-black tracking-tighter shrink-0">
+                      {new Date(user.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                  )}
                 </div>
-                <span className="text-white/30 text-xs truncate font-medium">@{user.userName}</span>
+                <div className="flex items-center justify-between gap-2">
+                  <span className={`text-xs truncate font-medium flex-1 ${user.unreadCount > 0 ? 'text-indigo-400 font-bold' : 'text-white/30'}`}>
+                    {user.lastMessage ? (
+                      <>
+                        {user.lastMessage.sender === currentUser?._id && <span className="text-indigo-400">You: </span>}
+                        {user.lastMessage.text}
+                        {user.lastMessage.sender === currentUser?._id && user.lastMessage.seen && (
+                          <span className="ml-1.5 text-[10px] text-emerald-500 font-bold italic uppercase tracking-tighter shrink-0">Seen</span>
+                        )}
+                      </>
+                    ) : `@${user.userName}`}
+                  </span>
+                  {user.unreadCount > 0 && (
+                    <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                      <span className="text-[10px] font-black text-[#0c0c14]">{user.unreadCount}</span>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           ))

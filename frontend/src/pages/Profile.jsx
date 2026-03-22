@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostCard from '../components/PostCard';
+import ImageModal from '../components/ImageModal';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
@@ -15,10 +16,12 @@ export default function Profile() {
   const [connections, setConnections] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchProfile = async () => {
       try {
         setLoading(true);
@@ -81,19 +84,6 @@ export default function Profile() {
 
   return (
     <div className="w-full pb-10 relative">
-      {/* Mobile Settings Icon */}
-      <div className="lg:hidden absolute top-4 right-4 z-50">
-        <button 
-          onClick={() => navigate('/settings')}
-          className="p-3.5 bg-white/[0.03] backdrop-blur-xl hover:bg-white/[0.08] rounded-2xl border border-white/5 transition-all active:scale-95 shadow-xl"
-          title="Settings"
-        >
-          <svg className="w-6 h-6 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
-      </div>
 
       {/* Drawer Overlay */}
       {isDrawerOpen && (
@@ -152,43 +142,82 @@ export default function Profile() {
         </div>
       )}
 
-      {/* Profile Header */}
-      <div className="flex flex-col items-center mb-12">
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 shrink-0">
-            {profile.image ? (
-              <img src={profile.image} alt="" className="w-full h-full object-cover" />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl">👤</div>
-            )}
+      {/* Navigation Header */}
+      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full pt-6 mb-4">
+        <button 
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 flex items-center justify-center bg-white/[0.03] backdrop-blur-3xl hover:bg-white/[0.08] rounded-full border border-white/10 transition-all active:scale-95 group shadow-xl"
+          title="Back"
+        >
+          <svg className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Header Info */}
+      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full mb-8">
+        <div className="flex items-center gap-6 mb-6">
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+            <div 
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 shrink-0 cursor-pointer hover:opacity-90 transition-opacity active:scale-95 shadow-2xl"
+              onClick={() => setIsImageModalOpen(true)}
+            >
+              {profile.image ? (
+                <img src={profile.image} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl">👤</div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex flex-col min-w-0 flex-1">
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight truncate leading-tight">
+              {profile.firstName} {profile.lastName}
+            </h1>
+            <p className="text-indigo-400 font-medium tracking-wide text-xs md:text-sm">@{profile.userName}</p>
+            <p className="text-white/30 text-[10px] md:text-xs mt-0.5 truncate">{profile.email}</p>
           </div>
         </div>
-        
-        <h1 className="text-3xl font-bold text-white mt-6 tracking-tight">
-          {profile.firstName} {profile.lastName}
-        </h1>
-        <p className="text-indigo-400 font-medium tracking-wide mt-1">@{profile.userName}</p>
-        <p className="text-white/30 text-sm mt-1">{profile.email}</p>
 
-        <div className="flex gap-8 mt-8 py-4 px-8 bg-white/[0.03] rounded-2xl border border-white/5">
+        {/* Action Buttons */}
+        <div className="flex gap-3 w-full">
+          <button 
+            onClick={() => navigate('/settings')}
+            className="flex-1 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white/[0.08] text-white border border-white/10 hover:bg-white/[0.12] transition-all duration-300 shadow-lg active:scale-95"
+          >
+            Edit Profile
+          </button>
+          <button 
+            onClick={() => navigate('/settings')}
+            className="flex-1 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white/[0.08] text-white border border-white/10 hover:bg-white/[0.12] transition-all duration-300 shadow-lg active:scale-95"
+          >
+            Settings
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Section */}
+      <div className="w-full flex justify-center mb-10 px-6 lg:px-0">
+        <div className="flex gap-10 py-4 px-10 bg-white/[0.02] rounded-3xl border border-white/5 backdrop-blur-md">
           <div className="flex flex-col items-center">
-            <span className="text-white font-bold text-lg">{posts.length}</span>
-            <span className="text-white/20 text-[10px] uppercase tracking-widest font-bold">Posts</span>
+            <span className="text-white font-bold text-lg leading-tight">{posts.length}</span>
+            <span className="text-white/20 text-[10px] uppercase tracking-widest font-black">Posts</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
             onClick={() => fetchConnections('followers')}
           >
-            <span className="text-white font-bold text-lg">{followersCount}</span>
-            <span className="text-white/20 text-[10px] uppercase tracking-widest font-bold">Followers</span>
+            <span className="text-white font-bold text-lg leading-tight">{followersCount}</span>
+            <span className="text-white/20 text-[10px] uppercase tracking-widest font-black">Followers</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
             onClick={() => fetchConnections('following')}
           >
-            <span className="text-white font-bold text-lg">{followingCount}</span>
-            <span className="text-white/20 text-[10px] uppercase tracking-widest font-bold">Following</span>
+            <span className="text-white font-bold text-lg leading-tight">{followingCount}</span>
+            <span className="text-white/20 text-[10px] uppercase tracking-widest font-black">Following</span>
           </div>
         </div>
       </div>
@@ -275,6 +304,12 @@ export default function Profile() {
           </div>
         </div>
       )}
+      {/* Image Modal */}
+      <ImageModal 
+        isOpen={isImageModalOpen} 
+        onClose={() => setIsImageModalOpen(false)} 
+        imageUrl={profile.image} 
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostCard from '../components/PostCard';
+import ConfirmationModal from '../components/ConfirmationModal';
 
 const CLOUDINARY_UPLOAD_PRESET = "interview"; 
 const CLOUDINARY_CLOUD_NAME = "dxcceg1gx"; 
@@ -13,6 +14,7 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile'); 
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   
   const [formData, setFormData] = useState({ firstName: '', lastName: '', image: '' });
   const [imageFile, setImageFile] = useState(null);
@@ -21,6 +23,11 @@ export default function Settings() {
   
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
+  
+  const hasChanges = 
+    formData.firstName !== (user?.firstName || '') || 
+    formData.lastName !== (user?.lastName || '') || 
+    imageFile !== null;
 
   useEffect(() => {
     fetchData();
@@ -95,11 +102,11 @@ export default function Settings() {
         { ...formData, image: imageUrl }, 
         { withCredentials: true }
       );
-
+      
       if (res.data.success) {
         setUser(res.data.user);
-        setMessage({ type: 'success', text: 'Profile updated successfully!' });
         setImageFile(null);
+        setMessage({ type: 'success', text: 'Universal profile updated successfully' });
       }
     } catch (err) {
       console.error("Save profile error:", err);
@@ -109,7 +116,9 @@ export default function Settings() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = () => setIsLogoutModalOpen(true);
+
+  const confirmLogout = async () => {
     try {
       const res = await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
       if (res.data.success) navigate('/login');
@@ -130,11 +139,26 @@ export default function Settings() {
   return (
     <div className="w-full max-w-2xl pb-32 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       {/* Header */}
-      <div className="flex items-center justify-between mb-12 px-2">
-        <div>
-          <h1 className="text-4xl font-black text-white tracking-tighter italic">Settings</h1>
-          <p className="text-white/20 text-xs font-bold uppercase tracking-[0.3em] mt-2">Manage your universe</p>
+      <div className="flex items-center justify-between mb-12 px-4 shadow-sm pb-6 border-b border-white/5">
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 flex items-center justify-center bg-white/[0.03] backdrop-blur-3xl hover:bg-white/[0.08] rounded-full border border-white/10 transition-all active:scale-95 group shadow-xl"
+            title="Back"
+          >
+            <svg className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div className="w-11 h-11 flex items-center justify-center bg-indigo-500/10 rounded-2xl border border-indigo-500/20 shadow-lg shadow-indigo-500/5 animate-in zoom-in-50 duration-500">
+            <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
         </div>
+
         <button 
           onClick={handleLogout}
           className="group flex items-center gap-3 px-6 py-3 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white text-sm font-black rounded-2xl border border-rose-500/20 transition-all duration-500 active:scale-95 shadow-lg shadow-rose-500/5 hover:shadow-rose-500/20"
@@ -224,14 +248,14 @@ export default function Settings() {
               {/* Submit */}
               <button 
                 type="submit"
-                disabled={saving}
-                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-[1.8rem] transition-all duration-500 shadow-2xl shadow-indigo-500/20 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 group"
+                disabled={saving || !hasChanges}
+                className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-[1.8rem] transition-all duration-500 shadow-2xl shadow-indigo-500/20 active:scale-[0.98] disabled:opacity-30 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-3 group"
               >
                 {saving ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   <>
-                    <span>Seal Changes</span>
+                    <span>Save Changes</span>
                     <svg className="w-4 h-4 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
                   </>
                 )}
@@ -251,6 +275,17 @@ export default function Settings() {
           </div>
         )}
       </div>
+      
+      <ConfirmationModal 
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={confirmLogout}
+        title="Terminating Session?"
+        message="Are you sure you want to logout? You'll need to re-authenticate to access your stories and connections."
+        confirmText="Logout"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 }

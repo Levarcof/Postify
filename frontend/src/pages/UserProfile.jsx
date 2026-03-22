@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostCard from '../components/PostCard';
+import ImageModal from '../components/ImageModal';
 
 export default function UserProfile() {
   const { userName } = useParams();
@@ -18,6 +19,7 @@ export default function UserProfile() {
   const [modalType, setModalType] = useState(''); // 'followers' or 'following'
   const [connections, setConnections] = useState([]);
   const [modalLoading, setModalLoading] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -42,6 +44,7 @@ export default function UserProfile() {
     } catch (err) {
       console.error("Fetch User Profile Error:", err);
     } finally {
+      window.scrollTo(0, 0); 
       setLoading(false);
     }
   };
@@ -121,6 +124,7 @@ export default function UserProfile() {
 
   return (
     <div className="w-full pb-20 relative">
+
       {/* Mobile Hamburger Menu */}
       {/* <div className="lg:hidden absolute top-0 right-0 p-4 z-50">
         <button 
@@ -190,44 +194,46 @@ export default function UserProfile() {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col items-center mb-12">
-        <div className="relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-25" />
-          <div className="relative w-32 h-32 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10">
-            {profile.image ? <img src={profile.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-5xl">👤</div>}
+      {/* Navigation Header */}
+      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full pt-6 mb-4">
+        <button 
+          onClick={() => navigate(-1)}
+          className="w-10 h-10 flex items-center justify-center bg-white/[0.03] backdrop-blur-3xl hover:bg-white/[0.08] rounded-full border border-white/10 transition-all active:scale-95 group shadow-xl"
+          title="Back"
+        >
+          <svg className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Header Info */}
+      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full mb-8">
+        <div className="flex items-center gap-6 mb-6">
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-25" />
+            <div 
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 cursor-pointer hover:opacity-90 transition-all active:scale-95 shadow-2xl"
+              onClick={() => setIsImageModalOpen(true)}
+            >
+              {profile.image ? <img src={profile.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl">👤</div>}
+            </div>
+          </div>
+
+          <div className="flex flex-col min-w-0 flex-1">
+            <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight leading-tight truncate">
+              {profile.firstName} {profile.lastName}
+            </h1>
+            <p className="text-indigo-400 font-medium tracking-wide text-xs md:text-sm">@{profile.userName}</p>
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold text-white mt-6 tracking-tight mb-1">{profile.firstName} {profile.lastName}</h1>
-        <p className="text-indigo-400 font-medium tracking-wide">@{profile.userName}</p>
-
-        <div className="flex gap-8 mt-8 mb-8">
-          <div className="flex flex-col items-center">
-            <span className="text-white font-bold text-lg">{posts.length}</span>
-            <span className="text-white/30 text-[10px] uppercase font-bold tracking-widest">Posts</span>
-          </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
-            onClick={() => fetchConnections('followers')}
-          >
-            <span className="text-white font-bold text-lg">{followersCount}</span>
-            <span className="text-white/30 text-[10px] uppercase font-bold tracking-widest">Followers</span>
-          </div>
-          <div 
-            className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
-            onClick={() => fetchConnections('following')}
-          >
-            <span className="text-white font-bold text-lg">{followingCount}</span>
-            <span className="text-white/30 text-[10px] uppercase font-bold tracking-widest">Following</span>
-          </div>
-        </div>
-
+        {/* Action Buttons */}
         {currentUser?._id !== profile._id && (
-          <div className="flex gap-4">
+          <div className="flex gap-3 w-full">
             <button 
               onClick={handleFollow}
-              className={`px-10 py-3 rounded-2xl font-bold text-sm transition-all duration-300 shadow-lg ${
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs md:text-sm transition-all duration-300 shadow-lg ${
                 isFollowing 
                 ? "bg-white/[0.08] text-white border border-white/10 hover:bg-white/[0.12]" 
                 : "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-indigo-500/20 hover:scale-105 active:scale-95"
@@ -237,7 +243,7 @@ export default function UserProfile() {
             </button>
             <button 
               onClick={handleMessage}
-              className="px-10 py-3 rounded-2xl font-bold text-sm bg-white/[0.08] text-white border border-white/10 hover:bg-white/[0.12] transition-all duration-300 shadow-lg"
+              className="flex-1 py-2.5 rounded-xl font-bold text-xs md:text-sm bg-white/[0.08] text-white border border-white/10 hover:bg-white/[0.12] transition-all duration-300 shadow-lg"
             >
               Message
             </button>
@@ -245,6 +251,30 @@ export default function UserProfile() {
         )}
       </div>
 
+      {/* Stats Section */}
+      <div className="w-full flex justify-center mb-10 px-6 lg:px-0">
+        <div className="flex gap-10 py-4 px-10 bg-white/[0.02] rounded-3xl border border-white/5 backdrop-blur-md">
+          <div className="flex flex-col items-center">
+            <span className="text-white font-bold text-lg leading-tight">{posts.length}</span>
+            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Posts</span>
+          </div>
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
+            onClick={() => fetchConnections('followers')}
+          >
+            <span className="text-white font-bold text-lg leading-tight">{followersCount}</span>
+            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Followers</span>
+          </div>
+          <div 
+            className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
+            onClick={() => fetchConnections('following')}
+          >
+            <span className="text-white font-bold text-lg leading-tight">{followingCount}</span>
+            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Following</span>
+          </div>
+        </div>
+      </div>
+      
       {/* Posts */}
       <div className="space-y-6">
         <h3 className="text-white/20 text-[10px] uppercase font-bold tracking-[0.3em] flex items-center gap-4 mb-8">
@@ -328,6 +358,12 @@ export default function UserProfile() {
           </div>
         </div>
       )}
+      {/* Image Modal */}
+      <ImageModal 
+        isOpen={isImageModalOpen} 
+        onClose={() => setIsImageModalOpen(false)} 
+        imageUrl={profile.image} 
+      />
     </div>
   );
 }

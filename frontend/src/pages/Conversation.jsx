@@ -40,8 +40,23 @@ export default function Conversation() {
   useEffect(() => {
     if (conversationId) {
       fetchMessages(conversationId);
+      markAsSeen(conversationId);
     }
   }, [conversationId]);
+
+  const markAsSeen = async (id) => {
+    try {
+      const res = await axios.put(`http://localhost:5000/api/messages/markSeen/${id}`, {}, { withCredentials: true });
+      if (res.data.success) {
+        // Update local state for unread counts
+        setConversations(prev => prev.map(conv => 
+          conv.conversationId === id ? { ...conv, unreadCount: 0 } : conv
+        ));
+      }
+    } catch (err) {
+      console.error("Mark as seen error:", err);
+    }
+  };
 
   const fetchConversations = async () => {
     try {
@@ -81,6 +96,15 @@ export default function Conversation() {
       if (res.data.success) {
         setMessages([...messages, res.data.message]);
         setNewMessage("");
+        // Move this conversation to top and update last message locally
+        setConversations(prev => {
+          const others = prev.filter(c => c.conversationId !== conversationId);
+          const current = prev.find(c => c.conversationId === conversationId);
+          if (current) {
+            return [{ ...current, lastMessage: res.data.message, updatedAt: new Date() }, ...others];
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error("Send message error:", err);
@@ -111,17 +135,17 @@ export default function Conversation() {
       />
       {/* Sidebar - Hidden on mobile if a conversation is active */}
       <div className={`${conversationId ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-96 border-r border-white/5 flex flex-col bg-white/[0.01] backdrop-blur-3xl`}>
-        <div className="p-8 border-b border-white/5 flex items-center justify-between">
-          <h2 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">Messages</h2>
+        <div className="p-8 border-b border-white/5 flex items-center gap-4 bg-white/[0.02] backdrop-blur-2xl">
           <button
-            onClick={() => navigate('/profile')}
-            className="p-2 bg-white/5 hover:bg-indigo-500/20 rounded-xl transition-all border border-white/5 hover:border-indigo-500/30"
-            title="Start new message"
+            onClick={() => navigate(-1)}
+            className="flex items-center  justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-all active:scale-95 shadow-2xl shrink-0"
+            title="Back"
           >
-            <svg className="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+            <svg className="w-3 h-3 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
+          <h2 className="text-2xl font-black tracking-tight bg-gradient-to-r from-white to-white/40 bg-clip-text text-transparent">Messages</h2>
         </div>
 
         <div className="p-4 border-b border-white/5">
@@ -161,9 +185,30 @@ export default function Conversation() {
                 <div className="flex flex-col min-w-0 flex-1">
                   <div className="flex items-center justify-between mb-0.5">
                     <span className="font-bold text-[15px] truncate text-white/90">{user.firstName} {user.lastName}</span>
-                    <span className="text-[10px] text-white/20 font-bold uppercase tracking-tighter">12:45 PM</span>
+                    {user.lastMessage && (
+                      <span className="text-[10px] text-white/20 font-bold uppercase tracking-tighter">
+                        {new Date(user.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
                   </div>
-                  <span className="text-white/40 text-xs truncate font-medium">@{user.userName}</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`text-xs truncate font-medium flex-1 ${user.unreadCount > 0 ? 'text-white font-bold' : 'text-white/40'}`}>
+                      {user.lastMessage ? (
+                        <>
+                          {user.lastMessage.sender === currentUser?._id && <span className="text-indigo-400">You: </span>}
+                          {user.lastMessage.text}
+                          {user.lastMessage.sender === currentUser?._id && user.lastMessage.seen && (
+                            <span className="ml-1.5 text-[10px] text-emerald-500 font-bold italic uppercase tracking-tighter shrink-0">Seen</span>
+                          )}
+                        </>
+                      ) : `@${user.userName}`}
+                    </span>
+                    {user.unreadCount > 0 && (
+                      <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0">
+                        <span className="text-[10px] font-black text-[#080810]">{user.unreadCount}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             ))
@@ -191,11 +236,11 @@ export default function Conversation() {
             <div className="p-5 md:p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02] backdrop-blur-2xl z-10">
               <div className="flex items-center gap-4">
                 <button
-                  onClick={() => navigate('/messages')}
-                  className="md:hidden p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5 active:scale-90"
+                  onClick={() => navigate(-1)}
+                  className="flex md:hidden items-center justify-center w-8 h-8 bg-white/10 hover:bg-white/20 rounded-xl border border-white/10 transition-all active:scale-95 shadow-2xl shrink-0"
                 >
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <svg className="w-3 h-3 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
@@ -248,13 +293,16 @@ export default function Conversation() {
                   const isSameSender = prevMsg?.sender?._id === msg.sender?._id;
 
                   return (
-                    <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} ${isSameSender ? "-mt-4" : "mt-2"} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                    <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} ${isSameSender ? "-mt-4" : "mt-2"} ${idx === messages.length - 1 ? "mb-6" : ""} relative animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                       <div className={`max-w-[80%] md:max-w-[65%] p-4 md:p-5 text-[14px] md:text-[15px] leading-relaxed relative ${isMine
                           ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-[1.8rem] rounded-tr-none shadow-xl shadow-indigo-600/10"
                           : "bg-white/[0.05] text-white/90 rounded-[1.8rem] rounded-tl-none border border-white/10 backdrop-blur-md"
                         }`}>
                         {msg.text}
                       </div>
+                      {idx === messages.length - 1 && isMine && msg.seen && (
+                        <div className="absolute -bottom-5 right-2 text-[10px] text-emerald-500/80 font-black uppercase tracking-[0.2em] italic animate-in fade-in slide-in-from-top-1 duration-700">Seen</div>
+                      )}
                     </div>
                   );
                 })

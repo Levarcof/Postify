@@ -24,15 +24,30 @@ export const conversationUsers = async (req, res) => {
       members: { $in: [currentUserId] }
     });
 
-    // 2. Fetch all members details for these conversations
+    // 2. Fetch all members details for these conversations and calculate unread counts
     const users = await Promise.all(conversations.map(async (conv) => {
       const otherMemberId = conv.members.find(m => m.toString() !== currentUserId.toString());
       const user = await User.findById(otherMemberId).select("firstName lastName userName image");
+      
+      const unreadCount = await Message.countDocuments({
+        conversationId: conv._id,
+        sender: { $ne: currentUserId },
+        seen: false
+      });
+
+      const lastMsg = await Message.findById(conv.lastMessage);
+
       return {
         ...user.toObject(),
-        conversationId: conv._id
+        conversationId: conv._id,
+        unreadCount,
+        lastMessage: lastMsg,
+        updatedAt: conv.updatedAt
       };
     }));
+
+    // 3. Sort by updatedAt (latest message activity) descending
+    users.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
     return res.status(200).json({
       success: true,
@@ -125,6 +140,12 @@ export const sendMessage = async (req, res) => {
     const populatedMessage = await Message.findById(newMessage._id)
       .populate("sender", "firstName lastName userName image");
 
+    // Update Conversation with last message and trigger updatedAt
+    await Conversation.findByIdAndUpdate(conversationId, {
+      lastMessage: newMessage._id,
+      updatedAt: new Date()
+    });
+
     return res.status(200).json({
       success: true,
       message: populatedMessage
@@ -162,6 +183,31 @@ export const deleteConversation = async (req, res) => {
     return res.status(200).json({ success: true, message: "Conversation deleted successfully" });
   } catch (error) {
     console.error("Delete Conversation Error:", error);
+    return res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+// 👀 Mark Messages as Seen
+export const markMessagesSeen = async (req, res) => {
+  try {
+    const { conversationId } = req.params;
+    const sessionId = req.cookies.sessionId;
+    if (!sessionId) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const session = await Session.findById(sessionId);
+    if (!session) return res.status(401).json({ success: false, message: "Unauthorized" });
+
+    const currentUserId = session.userId;
+
+    // Update all messages in this conversation where current user is the receiver
+    await Message.updateMany(
+      { conversationId, sender: { $ne: currentUserId }, seen: false },
+      { $set: { seen: true } }
+    );
+
+    return res.status(200).json({ success: true, message: "Messages marked as seen" });
+  } catch (error) {
+    console.error("Mark Seen Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };

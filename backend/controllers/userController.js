@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import { Post } from "../models/Posts.js";
 import { Session } from "../models/Session.js";
 import { Connection } from "../models/Connection.js";
+import { Notification } from "../models/Notification.js";
 
 export const getProfile = async (req, res) => {
   try {
@@ -141,6 +142,25 @@ export const followUser = async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // 🔔 Send Notification
+    const followedUser = await User.findById(userId);
+    const currentUser = await User.findById(currentUserId);
+    
+    // Only send notification if it doesn't already exist (to avoid duplicates)
+    const existingNotification = await Notification.findOne({
+      "recipient.userId": followedUser._id,
+      "sender.userId": currentUser._id,
+      type: "follow"
+    });
+
+    if (!existingNotification) {
+      await Notification.create({
+        recipient: { userId: followedUser._id, userName: followedUser.userName },
+        sender: { userId: currentUser._id, userName: currentUser.userName },
+        type: "follow"
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: "User followed successfully"
@@ -196,6 +216,13 @@ export const unfollowUser = async (req, res) => {
         $pull: { followers: currentUserId }
       }
     );
+
+    // 🔔 Remove Notification
+    await Notification.findOneAndDelete({
+      "recipient.userId": userId,
+      "sender.userId": currentUserId,
+      type: "follow"
+    });
 
     return res.status(200).json({
       success: true,

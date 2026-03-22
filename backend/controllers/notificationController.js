@@ -52,8 +52,10 @@ export const getNotifications = async (req, res) => {
       .populate("postId", "content image")
       .sort({ createdAt: -1 });
 
-    // Filter out notifications where the post has been deleted
-    const filteredNotifications = notifications.filter(notif => !notif.postId === false || (notif.postId && notif.postId._id));
+    // Filter out notifications where the post has been deleted (only for likes/comments)
+    const filteredNotifications = notifications.filter(notif => 
+      notif.type === "follow" || (notif.postId && notif.postId._id)
+    );
 
     return res.status(200).json({ success: true, notifications: filteredNotifications });
   } catch (error) {
