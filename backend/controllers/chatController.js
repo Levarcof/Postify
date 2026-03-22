@@ -2,6 +2,7 @@ import { User } from "../models/User.js";
 import { Session } from "../models/Session.js";
 import { Conversation } from "../models/Conversation.js";
 import { Message } from "../models/Message.js";
+import { getIO } from "../utils/socket.js";
 
 export const conversationUsers = async (req, res) => {
   try {
@@ -146,6 +147,20 @@ export const sendMessage = async (req, res) => {
       updatedAt: new Date()
     });
 
+    // Emit real-time message
+    const io = getIO();
+    console.log(`Emitting new-message to room ${conversationId}:`, populatedMessage._id);
+    io.to(conversationId).emit("new-message", populatedMessage);
+
+    // Also emit to user-specific rooms for sidebar updates
+    const conversation = await Conversation.findById(conversationId);
+    if (conversation) {
+      conversation.members.forEach(memberId => {
+        io.to(`user_${memberId}`).emit("new-message", populatedMessage);
+        console.log(`Emitting new-message to user room: user_${memberId}`);
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: populatedMessage
@@ -204,6 +219,11 @@ export const markMessagesSeen = async (req, res) => {
       { conversationId, sender: { $ne: currentUserId }, seen: false },
       { $set: { seen: true } }
     );
+
+    // Emit seen status
+    const io = getIO();
+    console.log(`Emitting message-seen to room ${conversationId}`);
+    io.to(conversationId).emit("message-seen", { conversationId });
 
     return res.status(200).json({ success: true, message: "Messages marked as seen" });
   } catch (error) {

@@ -12,6 +12,7 @@ import Settings from './pages/Settings'
 import Notifications from './components/Notifications'
 import ProtectedRoute from './components/ProtectedRoute'
 import AuthRedirect from './components/AuthRedirect'
+import { SocketProvider } from './context/SocketContext'
 
 function App() {
   const router = createBrowserRouter([
@@ -74,7 +75,9 @@ function App() {
   ])
 
   return (
-    <RouterProvider router={router} />
+    <SocketProvider>
+      <RouterProvider router={router} />
+    </SocketProvider>
   )
 }
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import ConfirmationModal from '../components/ConfirmationModal';
+import { useSocket } from '../context/SocketContext';
 
 export default function Conversation() {
   const { conversationId } = useParams();
@@ -14,6 +15,7 @@ export default function Conversation() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+  const socket = useSocket();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -38,11 +40,48 @@ export default function Conversation() {
   };
 
   useEffect(() => {
-    if (conversationId) {
-      fetchMessages(conversationId);
-      markAsSeen(conversationId);
+    if (socket) {
+      // Always join user room if possible
+      if (currentUser?._id) {
+        console.log("Emitting join-user-room for:", currentUser._id);
+        socket.emit("join-user-room", currentUser._id);
+      }
+
+      // If in a specific conversation, join that room too
+      if (conversationId) {
+        console.log("Emitting join-room for:", conversationId);
+        socket.emit("join-room", conversationId);
+        fetchMessages(conversationId);
+        markAsSeen(conversationId);
+      }
+
+      socket.on("new-message", (message) => {
+        console.log("Received new-message event:", message);
+        const msgConvId = String(message.conversationId?._id || message.conversationId);
+        
+        if (conversationId && msgConvId === String(conversationId)) {
+          fetchMessages(conversationId);
+          markAsSeen(conversationId);
+        }
+        fetchConversations();
+      });
+
+      socket.on("message-seen", ({ conversationId: seenChatId }) => {
+        const sChatId = String(seenChatId);
+        if (conversationId && sChatId === String(conversationId)) {
+          setMessages(prev => prev.map(m => ({ ...m, seen: true })));
+        }
+        setConversations(prev => prev.map(c => 
+          String(c.conversationId) === sChatId ? { ...c, lastMessage: { ...c.lastMessage, seen: true } } : c
+        ));
+      });
+
+      return () => {
+        socket.off("new-message");
+        socket.off("message-seen");
+      }
     }
-  }, [conversationId]);
+  }, [conversationId, socket, currentUser]);
 
   const markAsSeen = async (id) => {
     try {
@@ -50,7 +89,7 @@ export default function Conversation() {
       if (res.data.success) {
         // Update local state for unread counts
         setConversations(prev => prev.map(conv => 
-          conv.conversationId === id ? { ...conv, unreadCount: 0 } : conv
+          String(conv.conversationId) === String(id) ? { ...conv, unreadCount: 0 } : conv
         ));
       }
     } catch (err) {
@@ -73,7 +112,6 @@ export default function Conversation() {
 
   const fetchMessages = async (id) => {
     try {
-      // Assuming there is an endpoint for messages, if not I'll need to create it
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/messages/${id}`, { withCredentials: true });
       if (res.data.success) {
         setMessages(res.data.messages);
@@ -94,12 +132,11 @@ export default function Conversation() {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        setMessages([...messages, res.data.message]);
+        setMessages(prev => [...prev, res.data.message]);
         setNewMessage("");
-        // Move this conversation to top and update last message locally
         setConversations(prev => {
-          const others = prev.filter(c => c.conversationId !== conversationId);
-          const current = prev.find(c => c.conversationId === conversationId);
+          const others = prev.filter(c => String(c.conversationId) !== String(conversationId));
+          const current = prev.find(c => String(c.conversationId) === String(conversationId));
           if (current) {
             return [{ ...current, lastMessage: res.data.message, updatedAt: new Date() }, ...others];
           }
@@ -195,9 +232,9 @@ export default function Conversation() {
                     <span className={`text-xs truncate font-medium flex-1 ${user.unreadCount > 0 ? 'text-white font-bold' : 'text-white/40'}`}>
                       {user.lastMessage ? (
                         <>
-                          {user.lastMessage.sender === currentUser?._id && <span className="text-indigo-400">You: </span>}
+                          {String(user.lastMessage.sender) === String(currentUser?._id) && <span className="text-indigo-400">You: </span>}
                           {user.lastMessage.text}
-                          {user.lastMessage.sender === currentUser?._id && user.lastMessage.seen && (
+                          {String(user.lastMessage.sender) === String(currentUser?._id) && user.lastMessage.seen && (
                             <span className="ml-1.5 text-[10px] text-emerald-500 font-bold italic uppercase tracking-tighter shrink-0">Seen</span>
                           )}
                         </>
@@ -245,24 +282,22 @@ export default function Conversation() {
                 </button>
 
                 <div className="flex items-center gap-4 cursor-pointer group" onClick={() => {
-                  const targetUser = conversations.find(c => c.conversationId === conversationId);
+                  const targetUser = conversations.find(c => String(c.conversationId) === String(conversationId));
                   if (targetUser) navigate(`/user/${targetUser.userName}`);
                 }}>
                   <div className="relative">
                     <div className="w-12 h-12 rounded-full overflow-hidden bg-white/5 ring-2 ring-white/5 group-hover:ring-indigo-500/30 transition-all">
-                      {conversations.find(c => c.conversationId === conversationId)?.image ? (
-                        <img src={conversations.find(c => c.conversationId === conversationId).image} alt="" className="w-full h-full object-cover" />
+                      {conversations.find(c => String(c.conversationId) === String(conversationId))?.image ? (
+                        <img src={conversations.find(c => String(c.conversationId) === String(conversationId)).image} alt="" className="w-full h-full object-cover" />
                       ) : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
                     </div>
                     <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#12121e]" />
                   </div>
                   <div>
                     <div className="font-extrabold text-white text-[16px] md:text-lg tracking-tight group-hover:text-indigo-400 transition-colors leading-none">
-                      {conversations.find(c => c.conversationId === conversationId)?.firstName} {conversations.find(c => c.conversationId === conversationId)?.lastName}
+                      {conversations.find(c => String(c.conversationId) === String(conversationId))?.firstName} {conversations.find(c => String(c.conversationId) === String(conversationId))?.lastName}
                     </div>
                     <div className="flex items-center gap-1.5 mt-1.5">
-                      {/* <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" /> */}
-                      {/* <span className="text-emerald-500/80 text-[10px] md:text-xs font-bold uppercase tracking-widest">Active Now</span> */}
                     </div>
                   </div>
                 </div>
@@ -288,9 +323,9 @@ export default function Conversation() {
                 </div>
               ) : (
                 messages.map((msg, idx) => {
-                  const isMine = msg.sender?._id === currentUser?._id;
+                  const isMine = String(msg.sender?._id || msg.sender) === String(currentUser?._id);
                   const prevMsg = messages[idx - 1];
-                  const isSameSender = prevMsg?.sender?._id === msg.sender?._id;
+                  const isSameSender = String(prevMsg?.sender?._id || prevMsg?.sender) === String(msg.sender?._id || msg.sender);
 
                   return (
                     <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} ${isSameSender ? "-mt-4" : "mt-2"} ${idx === messages.length - 1 ? "mb-6" : ""} relative animate-in fade-in slide-in-from-bottom-2 duration-300`}>
