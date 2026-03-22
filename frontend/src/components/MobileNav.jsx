@@ -58,8 +58,8 @@ export default function MobileNav() {
   if (isConversation) return null;
 
   return (
-    <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-w-sm z-[100] animate-in slide-in-from-bottom duration-700">
-      <nav className="bg-[#0c0c14]/60 backdrop-blur-2xl border border-white/10 h-[4.5rem] rounded-[2.5rem] flex items-center justify-around px-4 shadow-2xl shadow-black/80 ring-1 ring-white/5">
+    <div className="lg:hidden fixed bottom-0 left-0 w-full z-[100] animate-in slide-in-from-bottom duration-700">
+      <nav className="bg-[#0c0c14] border-t border-white/10 h-[4.5rem] flex items-center justify-around px-4 shadow-2xl shadow-black ring-1 ring-white/5">
         {navItems.map((item) => (
           <NavLink
             key={item.name}

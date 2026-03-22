@@ -39,7 +39,7 @@ export default function SearchPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for people..."
-          className="w-full bg-white/[0.05] border border-white/10 rounded-2xl px-6 py-4 text-white placeholder-white/20 outline-none focus:border-indigo-500/50 shadow-inner transition-all"
+          className="w-full bg-white/[0.05] border border-white/10 rounded-2xl px-6 py-4 text-white text-base placeholder-white/20 outline-none focus:border-indigo-500/50 shadow-inner transition-all"
         />
         {searching && (
           <div className="absolute right-6 top-1/2 -translate-y-1/2">

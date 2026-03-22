@@ -146,7 +146,7 @@ export default function Sidebar() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Find creators..."
-                  className="w-full bg-[#0c0c14] border border-white/10 rounded-2xl px-6 py-4 text-sm text-white placeholder-white/20 outline-none focus:border-indigo-500/50 transition-all shadow-2xl"
+                  className="w-full bg-[#0c0c14] border border-white/10 rounded-2xl px-6 py-4 text-base text-white placeholder-white/20 outline-none focus:border-indigo-500/50 transition-all shadow-2xl"
                 />
                 <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2">
                   {searching ? (

@@ -32,7 +32,7 @@ function FloatingInput({ label, type = "text", registerKey, register, icon }) {
           onChange(e);
           setHasValue(e.target.value !== "");
         }}
-        className={`peer w-full ${icon ? "pl-11" : "pl-5"} pr-5 pt-6 pb-2 bg-white/[0.04] border rounded-2xl text-white text-sm outline-none transition-all duration-300
+        className={`peer w-full ${icon ? "pl-11" : "pl-5"} pr-5 pt-6 pb-2 bg-white/[0.04] border rounded-2xl text-white text-base outline-none transition-all duration-300
           ${focused ? "border-indigo-500/70 bg-white/[0.08] shadow-[0_0_0_3px_rgba(99,102,241,0.15)]" : "border-white/10"}
           placeholder-transparent`}
         autoComplete="off"
@@ -129,7 +129,7 @@ export default function Registration() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#080810] px-4 py-10 font-sans relative overflow-hidden">
       {/* ambient glows */}
-      <div className="pointer-events-none absolute inset-0">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-indigo-600/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-700/15 rounded-full blur-[100px]" />
         <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-violet-600/10 rounded-full blur-[80px]" />

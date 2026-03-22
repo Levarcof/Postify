@@ -11,7 +11,7 @@ export default function MainLayout() {
   return (
     <div className="min-h-screen bg-[#080810] text-white flex">
       {/* GLOWS */}
-      <div className="fixed inset-0 pointer-events-none z-0">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-purple-700/10 rounded-full blur-[100px]" />
       </div>
