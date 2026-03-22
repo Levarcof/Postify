@@ -8,10 +8,6 @@ import router from "./routes/useRoutes.js";
 // Load env variables
 dotenv.config();
 const app = express();
-// const allowedOrigins = [
-//   "http://localhost:5173",
-//   "https://postify-git-main-vikrams-projects-c74312bb.vercel.app"
-// ];
 
 // Middleware
 app.use(express.json());
