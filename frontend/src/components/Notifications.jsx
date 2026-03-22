@@ -18,7 +18,7 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (res.data.success) {
         fetchNotifications(res.data.user.userName);
         markAsRead(res.data.user.userName);
@@ -31,7 +31,7 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
   const fetchNotifications = async (userName) => {
     try {
       setLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/getNotification/${userName}`);
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getNotification/${userName}`);
       if (res.data.success) {
         setNotifications(res.data.notifications);
       }
@@ -44,7 +44,7 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
 
   const markAsRead = async (userName) => {
     try {
-      await axios.post("http://localhost:5000/api/markAsRead", { userName });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/markAsRead`, { userName });
     } catch (err) {
       console.warn("Mark as read error:", err);
     }

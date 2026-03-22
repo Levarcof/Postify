@@ -22,20 +22,20 @@ export default function PostCard({ post, currentUser }) {
   const handleLike = async () => {
     try {
       const endpoint = isLiked ? "/api/unlikePost" : "/api/likePost";
-      const res = await axios.post(`http://localhost:5000${endpoint}`, { postId: post._id }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}${endpoint}`, { postId: post._id }, { withCredentials: true });
       if (res.data.success) {
         setIsLiked(!isLiked);
         setLikes(prev => isLiked ? prev - 1 : prev + 1);
 
         // 🔔 Notification Trigger
         if (!isLiked) {
-          await axios.post("http://localhost:5000/api/notification", {
+          await axios.post(`${import.meta.env.VITE_API_URL}/api/notification`, {
             recipientUserName: post.user?.userName,
             type: "like",
             postId: post._id
           }, { withCredentials: true });
         } else {
-          await axios.post("http://localhost:5000/api/removeNotification", {
+          await axios.post(`${import.meta.env.VITE_API_URL}/api/removeNotification`, {
             recipientUserName: post.user?.userName,
             type: "like",
             postId: post._id
@@ -50,12 +50,12 @@ export default function PostCard({ post, currentUser }) {
   const handleAddComment = async () => {
     if (!commentText.trim()) return;
     try {
-      const res = await axios.post("http://localhost:5000/api/commentPost", { postId: post._id, text: commentText }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/commentPost`, { postId: post._id, text: commentText }, { withCredentials: true });
       if (res.data.success) {
         setComments(res.data.comments);
         
         // 🔔 Notification Trigger
-        await axios.post("http://localhost:5000/api/notification", {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/notification`, {
           recipientUserName: post.user?.userName,
           type: "comment",
           postId: post._id,
@@ -71,12 +71,12 @@ export default function PostCard({ post, currentUser }) {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/deleteComment", { postId: post._id, commentId }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/deleteComment`, { postId: post._id, commentId }, { withCredentials: true });
       if (res.data.success) {
         setComments(res.data.comments);
 
         // 🔔 Notification Removal Trigger
-        await axios.post("http://localhost:5000/api/removeNotification", {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/removeNotification`, {
           recipientUserName: post.user?.userName,
           type: "comment",
           postId: post._id
@@ -89,7 +89,7 @@ export default function PostCard({ post, currentUser }) {
 
   const handleDelete = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/deletePost", { postId: post._id }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/deletePost`, { postId: post._id }, { withCredentials: true });
       if (res.data.success) {
         window.location.reload(); 
       }

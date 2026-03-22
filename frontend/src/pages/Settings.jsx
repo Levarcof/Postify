@@ -4,8 +4,8 @@ import axios from 'axios';
 import PostCard from '../components/PostCard';
 import ConfirmationModal from '../components/ConfirmationModal';
 
-const CLOUDINARY_UPLOAD_PRESET = "interview"; 
-const CLOUDINARY_CLOUD_NAME = "dxcceg1gx"; 
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUD_PRESET; 
+const CLOUDINARY_CLOUD_NAME =  import.meta.env.VITE_CLOUD_NAME; 
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -36,7 +36,7 @@ export default function Settings() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const userRes = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+      const userRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (!userRes.data.success) throw new Error("Failed to fetch profile");
       const currentUser = userRes.data.user;
       setUser(currentUser);
@@ -47,7 +47,7 @@ export default function Settings() {
       });
       setImagePreview(currentUser.image || null);
 
-      const postsRes = await axios.get("http://localhost:5000/api/feedPost", { withCredentials: true });
+      const postsRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/feedPost`, { withCredentials: true });
       if (postsRes.data.success) {
         const allPosts = postsRes.data.posts;
         setLikedPosts(allPosts.filter(post => post.likes?.includes(currentUser._id)));
@@ -98,7 +98,7 @@ export default function Settings() {
         imageUrl = await uploadToCloudinary(imageFile);
       }
 
-      const res = await axios.post("http://localhost:5000/api/updateProfile", 
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/updateProfile`, 
         { ...formData, image: imageUrl }, 
         { withCredentials: true }
       );
@@ -120,7 +120,7 @@ export default function Settings() {
 
   const confirmLogout = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/logout`, {}, { withCredentials: true });
       if (res.data.success) navigate('/login');
     } catch (err) {
       console.error("Logout error:", err);

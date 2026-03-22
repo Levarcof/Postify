@@ -11,7 +11,7 @@ export default function MessagingPanel() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/conversationUsers", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/conversationUsers`, { withCredentials: true });
         if (res.data.success) setUsers(res.data.users);
       } catch (err) {
         console.error("Fetch message users error:", err);
@@ -22,7 +22,7 @@ export default function MessagingPanel() {
 
     const fetchCurrentUser = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
         if (res.data.success) setCurrentUser(res.data.user);
       } catch (err) {
         console.error("Fetch current user error:", err);

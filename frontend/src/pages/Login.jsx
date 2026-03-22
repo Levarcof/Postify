@@ -80,7 +80,7 @@ export default function Login() {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:5000/api/login",
+        `${import.meta.env.VITE_API_URL}/api/login`,
         { userKey, password },
         { withCredentials: true }
       );
@@ -93,7 +93,7 @@ export default function Login() {
   const handleSendOtp = async () => {
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/forgetPassword", { userKey }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/forgetPassword`, { userKey }, { withCredentials: true });
       if (res.data.success) setStep(2);
     } catch { alert("Email not found."); }
     finally { setLoading(false); }
@@ -102,7 +102,7 @@ export default function Login() {
   const handleVerifyOtp = async () => {
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/verifyPassword", { userKey, otp }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/verifyPassword`, { userKey, otp }, { withCredentials: true });
       if (res.data.success) setStep(3);
     } catch { alert("Invalid or expired OTP."); }
     finally { setLoading(false); }
@@ -112,7 +112,7 @@ export default function Login() {
     if (newPassword !== confirmPassword) return alert("Passwords do not match.");
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/updatePassword", { userKey, password: newPassword }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/updatePassword`, { userKey, password: newPassword }, { withCredentials: true });
       if (res.data.success) { alert("Password updated! Please log in."); setStep(0); setOtp(""); setNewPassword(""); setConfirmPassword(""); }
     } catch { alert("Error updating password."); }
     finally { setLoading(false); }

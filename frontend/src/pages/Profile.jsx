@@ -25,7 +25,7 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
         if (res.data.success) {
           setProfile(res.data.user);
           setPosts(res.data.posts);
@@ -46,7 +46,7 @@ export default function Profile() {
       setModalType(type);
       setIsModalOpen(true);
       setModalLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/getConnections/${profile._id}?type=${type}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getConnections/${profile._id}?type=${type}`, { withCredentials: true });
       if (res.data.success) {
         setConnections(res.data.users);
       }
@@ -59,7 +59,7 @@ export default function Profile() {
 
   const handleModalFollow = async (userId) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/followUser", { userId }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/followUser`, { userId }, { withCredentials: true });
       if (res.data.success) {
         setConnections(prev => prev.map(u => u._id === userId ? { ...u, isFollowing: true } : u));
         setFollowingCount(prev => prev + 1);
@@ -130,7 +130,7 @@ export default function Profile() {
             <div className="mt-auto">
               <button 
                 onClick={async () => {
-                   await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+                   await axios.post(`${import.meta.env.VITE_API_URL}/api/logout`, {}, { withCredentials: true });
                    navigate('/login');
                 }}
                 className="w-full p-4 rounded-2xl bg-red-500/10 text-red-500 font-bold border border-red-500/10 active:scale-95 transition-all"

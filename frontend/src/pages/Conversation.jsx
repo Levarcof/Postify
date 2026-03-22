@@ -30,7 +30,7 @@ export default function Conversation() {
 
   const fetchCurrentUser = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (res.data.success) setCurrentUser(res.data.user);
     } catch (err) {
       console.error("Fetch current user error:", err);
@@ -46,7 +46,7 @@ export default function Conversation() {
 
   const markAsSeen = async (id) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/messages/markSeen/${id}`, {}, { withCredentials: true });
+      const res = await axios.put(`${import.meta.env.VITE_API_URL}/api/messages/markSeen/${id}`, {}, { withCredentials: true });
       if (res.data.success) {
         // Update local state for unread counts
         setConversations(prev => prev.map(conv => 
@@ -60,7 +60,7 @@ export default function Conversation() {
 
   const fetchConversations = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/conversationUsers", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/conversationUsers`, { withCredentials: true });
       if (res.data.success) {
         setConversations(res.data.users);
       }
@@ -74,7 +74,7 @@ export default function Conversation() {
   const fetchMessages = async (id) => {
     try {
       // Assuming there is an endpoint for messages, if not I'll need to create it
-      const res = await axios.get(`http://localhost:5000/api/messages/${id}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/messages/${id}`, { withCredentials: true });
       if (res.data.success) {
         setMessages(res.data.messages);
       }
@@ -88,7 +88,7 @@ export default function Conversation() {
     if (!newMessage.trim()) return;
 
     try {
-      const res = await axios.post("http://localhost:5000/api/sendMessage", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/sendMessage`, {
         conversationId,
         text: newMessage
       }, { withCredentials: true });
@@ -113,7 +113,7 @@ export default function Conversation() {
 
   const handleDeleteConversation = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/deleteConversation", { conversationId }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/deleteConversation`, { conversationId }, { withCredentials: true });
       if (res.data.success) {
         navigate('/messages');
         fetchConversations();

@@ -13,7 +13,7 @@ export default function SearchPage() {
       if (query.trim()) {
         try {
           setSearching(true);
-          const res = await axios.get(`http://localhost:5000/api/searchUsers?query=${query}`, { withCredentials: true });
+          const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/searchUsers?query=${query}`, { withCredentials: true });
           if (res.data.success) setResults(res.data.users);
         } catch (err) {
           console.error("Search API error:", err);

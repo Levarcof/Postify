@@ -13,7 +13,7 @@ export default function CreatePost({ onPostCreated }) {
     const fetchProfile = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
         if (res.data.success) {
           setProfile(res.data.user);
         }
@@ -30,7 +30,7 @@ export default function CreatePost({ onPostCreated }) {
     if (!content.trim()) return;
     try {
       setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/postText", { content }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/postText`, { content }, { withCredentials: true });
       if (res.data.success) {
         setContent('');
         if (onPostCreated) onPostCreated(res.data.post);

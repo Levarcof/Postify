@@ -31,7 +31,7 @@ export default function MobileNav() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (res.data.success) {
         setProfile(res.data.user);
         fetchUnreadCount(res.data.user.userName);
@@ -43,7 +43,7 @@ export default function MobileNav() {
 
   const fetchUnreadCount = async (userName) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/getNotification/${userName}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getNotification/${userName}`, { withCredentials: true });
       if (res.data.success) {
         const unread = res.data.notifications.filter(n => !n.isRead).length;
         setUnreadCount(unread);

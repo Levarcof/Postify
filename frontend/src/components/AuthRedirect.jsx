@@ -9,7 +9,7 @@ export default function AuthRedirect() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/checkSession", { withCredentials: true });
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/checkSession`, { withCredentials: true });
         if (res.data.success && res.data.loggedIn) {
           setIsLoggedIn(true);
         } else {

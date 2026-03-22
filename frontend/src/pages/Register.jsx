@@ -93,7 +93,7 @@ export default function Registration() {
   const handleGenerateOtp = async (data) => {
     try {
       setLoading(true);
-      await axios.post("http://localhost:5000/api/registerUser", { email: data.email }, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/registerUser`, { email: data.email }, { withCredentials: true });
       setOtpSent(true);
       setTimer(300);
     } catch { alert("Error sending OTP — check your email address."); }
@@ -103,7 +103,7 @@ export default function Registration() {
   const handleResendOtp = async () => {
     try {
       setLoading(true);
-      await axios.post("http://localhost:5000/api/registerUser", { email: watch("email") }, { withCredentials: true });
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/registerUser`, { email: watch("email") }, { withCredentials: true });
       setTimer(300);
       setOtp("");
     } catch { alert("Error resending OTP."); }
@@ -116,7 +116,7 @@ export default function Registration() {
       setLoading(true);
       let profilePic = "";
       if (data.profilePic?.[0]) profilePic = await uploadImage(data.profilePic[0]);
-      const res = await axios.post("http://localhost:5000/api/verifyOtp", {
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/verifyOtp`, {
         ...data, profilePic, otp,
       }, { withCredentials: true });
       if (res.data.success) navigate("/");

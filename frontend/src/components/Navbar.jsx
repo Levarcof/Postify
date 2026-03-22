@@ -9,7 +9,7 @@ export default function Navbar() {
   useEffect(() => {
     const verifySession = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/checkSession", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/checkSession`, {
           withCredentials: true,
         });
 
@@ -30,7 +30,7 @@ export default function Navbar() {
   const handleLogout = async () => {
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/logout",
+        `${import.meta.env.VITE_API_URL}/api/logout`,
         {},
         { withCredentials: true }
       );

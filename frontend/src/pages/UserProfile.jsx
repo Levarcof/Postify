@@ -27,7 +27,7 @@ export default function UserProfile() {
     try {
       setLoading(true);
       // Fetch public profile
-      const res = await axios.get(`http://localhost:5000/api/publicProfile/${userName}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/publicProfile/${userName}`, { withCredentials: true });
       if (res.data.success) {
         setProfile(res.data.user);
         setPosts(res.data.posts);
@@ -37,7 +37,7 @@ export default function UserProfile() {
       }
       
       // Fetch current user for context
-      const currRes = await axios.get("http://localhost:5000/api/profile", { withCredentials: true });
+      const currRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (currRes.data.success) {
         setCurrentUser(currRes.data.user);
       }
@@ -56,7 +56,7 @@ export default function UserProfile() {
   const handleFollow = async () => {
     try {
       const endpoint = isFollowing ? "/api/unfollowUser" : "/api/followUser";
-      const res = await axios.post(`http://localhost:5000${endpoint}`, { userId: profile._id }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}${endpoint}`, { userId: profile._id }, { withCredentials: true });
       if (res.data.success) {
         setIsFollowing(!isFollowing);
         setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
@@ -68,7 +68,7 @@ export default function UserProfile() {
 
   const handleMessage = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/createConversation", { userId: profile._id }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/createConversation`, { userId: profile._id }, { withCredentials: true });
       if (res.data.success) {
         navigate(`/conversation/${res.data.conversationId}`);
       }
@@ -82,7 +82,7 @@ export default function UserProfile() {
       setModalType(type);
       setIsModalOpen(true);
       setModalLoading(true);
-      const res = await axios.get(`http://localhost:5000/api/getConnections/${profile._id}?type=${type}`, { withCredentials: true });
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getConnections/${profile._id}?type=${type}`, { withCredentials: true });
       if (res.data.success) {
         setConnections(res.data.users);
       }
@@ -95,7 +95,7 @@ export default function UserProfile() {
 
   const handleModalFollow = async (userId) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/followUser", { userId }, { withCredentials: true });
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/followUser`, { userId }, { withCredentials: true });
       if (res.data.success) {
         setConnections(prev => prev.map(u => u._id === userId ? { ...u, isFollowing: true } : u));
         // If the user being followed is the profile user, we might want to update the count
@@ -182,7 +182,7 @@ export default function UserProfile() {
             <div className="mt-auto">
               <button 
                 onClick={async () => {
-                   await axios.post("http://localhost:5000/api/logout", {}, { withCredentials: true });
+                   await axios.post(`${import.meta.env.VITE_API_URL}/api/logout`, {}, { withCredentials: true });
                    navigate('/login');
                 }}
                 className="w-full p-4 rounded-2xl bg-red-500/10 text-red-500 font-bold border border-red-500/10 active:scale-95 transition-all"
