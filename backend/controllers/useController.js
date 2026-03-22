@@ -90,7 +90,7 @@ export const verifyOtp = async (req, res) => {
   // 🍪 Set cookie
   res.cookie("sessionId", session._id.toString(), {
     httpOnly: true,
-    secure: false, // set to true only in production (HTTPS)
+    secure: true, // set to true only in production (HTTPS)
     sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
@@ -215,7 +215,7 @@ export const login = async (req, res) => {
     // 4️⃣ Store sessionId in cookie
     res.cookie("sessionId", session._id.toString(), {
       httpOnly: true,
-      secure: false, // 👉 true in production (HTTPS)
+      secure: true, // 👉 true in production (HTTPS)
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
