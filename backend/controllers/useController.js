@@ -91,7 +91,7 @@ export const verifyOtp = async (req, res) => {
   res.cookie("sessionId", session._id.toString(), {
     httpOnly: true,
     secure: true, // set to true only in production (HTTPS)
-    sameSite: "lax",
+    sameSite: "None",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
@@ -216,7 +216,7 @@ export const login = async (req, res) => {
     res.cookie("sessionId", session._id.toString(), {
       httpOnly: true,
       secure: true, // 👉 true in production (HTTPS)
-      sameSite: "lax",
+      sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
