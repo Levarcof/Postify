@@ -17,10 +17,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-   origin: [
-    "http://localhost:5173",
-    "postify-git-main-vikrams-projects-c74312bb.vercel.app"
-  ],
+   origin:true,
   credentials: true
 }));
 
