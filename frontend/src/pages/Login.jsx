@@ -144,12 +144,6 @@ export default function Login() {
         <div className="rounded-[2.5rem] bg-white/[0.04] backdrop-blur-3xl border border-white/[0.08] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.8)] overflow-hidden">
           {/* header */}
           <div className="px-8 pt-9 pb-7 border-b border-white/[0.06]">
-            <div className="flex items-center gap-3 mb-5">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                <span className="text-white font-bold text-sm">AI</span>
-              </div>
-              <span className="text-white/50 text-sm font-light tracking-widest uppercase">Interview</span>
-            </div>
             <h1 className="text-3xl font-semibold text-white tracking-tight">{stepMeta[step].title}</h1>
             <p className="text-white/40 text-sm mt-1.5 font-light">{stepMeta[step].sub}</p>
           </div>
