@@ -93,10 +93,22 @@ export default function Registration() {
   const handleGenerateOtp = async (data) => {
     try {
       setLoading(true);
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/registerUser`, { email: data.email }, { withCredentials: true });
-      setOtpSent(true);
-      setTimer(300);
-    } catch { alert("Error sending OTP — check your email address."); }
+      // await axios.post(`${import.meta.env.VITE_API_URL}/api/registerUser`, { email: data.email }, { withCredentials: true });   for otp 
+      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/registerUser`, {
+        ...data, profilePic,
+      },
+        { withCredentials: true });
+        
+      // setOtpSent(true);
+      // setTimer(300);
+      if (res.data.success) navigate("/");
+
+    }
+     catch 
+     {
+       alert("Verification failed — please try again."); 
+
+     }
     finally { setLoading(false); }
   };
 
@@ -117,7 +129,7 @@ export default function Registration() {
       let profilePic = "";
       if (data.profilePic?.[0]) profilePic = await uploadImage(data.profilePic[0]);
       const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/verifyOtp`, {
-        ...data, profilePic, otp,
+        ...data, profilePic,
       }, { withCredentials: true });
       if (res.data.success) navigate("/");
     } catch { alert("Verification failed — please try again."); }
@@ -144,10 +156,10 @@ export default function Registration() {
           {/* header band */}
           <div className="px-8 pt-9 pb-7 border-b border-white/[0.06]">
             {/* <div className="flex items-center gap-3 mb-5"> */}
-              {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30"> */}
-                {/* <span className="text-white font-bold text-sm">AI</span> */}
-              {/* </div> */}
-              {/* <span className="text-white/50 text-sm font-light tracking-widest uppercase">Interview</span> */}
+            {/* <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30"> */}
+            {/* <span className="text-white font-bold text-sm">AI</span> */}
+            {/* </div> */}
+            {/* <span className="text-white/50 text-sm font-light tracking-widest uppercase">Interview</span> */}
             {/* </div> */}
             <h1 className="text-3xl text-center font-semibold text-white tracking-tight">Create account</h1>
             {/* <p className="text-white/40 text-sm mt-1.5 font-light">Join thousands of candidates. It's free.</p> */}
@@ -203,7 +215,7 @@ export default function Registration() {
               <div className={`transition-all duration-500 overflow-hidden ${otpSent ? "max-h-0 opacity-0 pointer-events-none" : "max-h-24 opacity-100"}`}>
                 <button
                   type="button"
-                  onClick={handleSubmit(handleGenerateOtp)}
+                  onClick={handleSubmit(onSubmit)}
                   disabled={loading}
                   className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold text-base
                     hover:from-indigo-400 hover:to-purple-500 hover:-translate-y-0.5 hover:shadow-[0_0_30px_rgba(99,102,241,0.4)]
