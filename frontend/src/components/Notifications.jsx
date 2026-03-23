@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useSocket } from '../context/SocketContext';
 
 export default function Notifications({ currentUser, isSidebar = false, onClose }) {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const socket = useSocket();
+  const [currentUserProfile, setCurrentUserProfile] = useState(currentUser);
 
   useEffect(() => {
     if (currentUser?.userName) {
+      setCurrentUserProfile(currentUser);
       fetchNotifications(currentUser.userName);
       markAsRead(currentUser.userName);
     } else {
@@ -16,10 +20,32 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    if (socket && currentUserProfile) {
+      const handleNewNotification = (notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        markAsRead(currentUserProfile.userName);
+      };
+
+      const handleRemoveNotification = ({ notificationId }) => {
+        setNotifications(prev => prev.filter(n => n._id !== notificationId));
+      };
+
+      socket.on("new-notification", handleNewNotification);
+      socket.on("remove-notification", handleRemoveNotification);
+
+      return () => {
+        socket.off("new-notification", handleNewNotification);
+        socket.off("remove-notification", handleRemoveNotification);
+      };
+    }
+  }, [socket, currentUserProfile]);
+
   const fetchProfile = async () => {
     try {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/profile`, { withCredentials: true });
       if (res.data.success) {
+        setCurrentUserProfile(res.data.user);
         fetchNotifications(res.data.user.userName);
         markAsRead(res.data.user.userName);
       }

@@ -128,10 +128,10 @@ export default function Settings() {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center pt-20 animate-pulse w-full max-w-2xl px-4">
-      <div className="h-40 w-full bg-white/5 rounded-[3rem] mb-12" />
-      <div className="w-full space-y-6">
-        {[1,2].map(i => <div key={i} className="h-64 w-full bg-white/5 rounded-[2.5rem]" />)}
+    <div className="flex flex-col items-center pt-12 sm:pt-20 animate-pulse w-full max-w-2xl px-4 mx-auto">
+      <div className="h-32 sm:h-40 w-full bg-white/5 rounded-2xl sm:rounded-[3rem] mb-8 sm:mb-12" />
+      <div className="w-full space-y-4 sm:space-y-6">
+        {[1,2].map(i => <div key={i} className="h-48 sm:h-64 w-full bg-white/5 rounded-2xl sm:rounded-[2.5rem]" />)}
       </div>
     </div>
   );
@@ -179,7 +179,7 @@ export default function Settings() {
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-[11px] sm:text-xs font-black transition-all duration-500 whitespace-nowrap ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl text-[10px] sm:text-xs font-black transition-all duration-500 whitespace-nowrap ${
                 activeTab === tab.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/30' : 'text-white/40 hover:text-white/60 hover:bg-white/5'
               }`}
             >
@@ -196,44 +196,44 @@ export default function Settings() {
           <div className="bg-white/[0.03] backdrop-blur-3xl border border-white/5 rounded-3xl sm:rounded-[3rem] p-5 sm:p-10 shadow-2xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-[100px] -mr-16 -mt-16 sm:-mr-32 sm:-mt-32 pointer-events-none"></div>
             
-            <form onSubmit={handleSaveProfile} className="relative z-10 space-y-10">
+            <form onSubmit={handleSaveProfile} className="relative z-10 space-y-6 sm:space-y-10">
               {/* Profile Image Picker */}
               <div className="flex flex-col items-center">
                 <div className="relative group/avatar cursor-pointer" onClick={() => fileInputRef.current.click()}>
                   <div className="absolute -inset-1.5 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-full blur opacity-25 group-hover/avatar:opacity-75 transition duration-700 animate-pulse"></div>
-                  <div className="relative w-32 h-32 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 shadow-2xl">
+                  <div className="relative w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 shadow-2xl">
                     {imagePreview ? (
                       <img src={imagePreview} alt="" className="w-full h-full object-cover group-hover/avatar:scale-110 transition-transform duration-700" />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-4xl">👤</div>
+                      <div className="w-full h-full flex items-center justify-center text-3xl sm:text-4xl">👤</div>
                     )}
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover/avatar:opacity-100 transition-opacity flex items-center justify-center duration-300">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                      <svg className="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </div>
                   </div>
                   <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={handleImageChange} />
                 </div>
-                <p className="text-white/20 text-[10px] uppercase font-black tracking-widest mt-4">Tap to change portal avatar</p>
+                <p className="text-white/20 text-[9px] sm:text-[10px] uppercase font-black tracking-widest mt-4">Tap to change portal avatar</p>
               </div>
 
               {/* Inputs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-2">First Name</label>
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2">First Name</label>
                   <input 
                     value={formData.firstName}
                     onChange={(e) => setFormData({...formData, firstName: e.target.value})}
                     placeholder="Wanderer's First Name"
-                    className="w-full bg-white/[0.04] border border-white/5 rounded-2xl px-6 py-4 text-white text-base font-bold placeholder:text-white/10 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.06]"
+                    className="w-full bg-white/[0.04] border border-white/5 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 text-white text-sm sm:text-base font-bold placeholder:text-white/10 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.06]"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-2">Last Name</label>
+                  <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-white/30 ml-2">Last Name</label>
                   <input 
                     value={formData.lastName}
                     onChange={(e) => setFormData({...formData, lastName: e.target.value})}
                     placeholder="Wanderer's Last Name"
-                    className="w-full bg-white/[0.04] border border-white/5 rounded-2xl px-6 py-4 text-white text-base font-bold placeholder:text-white/10 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.06]"
+                    className="w-full bg-white/[0.04] border border-white/5 rounded-xl sm:rounded-2xl px-5 sm:px-6 py-3.5 sm:py-4 text-white text-sm sm:text-base font-bold placeholder:text-white/10 outline-none focus:border-indigo-500/50 transition-all focus:bg-white/[0.06]"
                   />
                 </div>
               </div>

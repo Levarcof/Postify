@@ -1,5 +1,6 @@
 import { Notification } from "../models/Notification.js";
 import { User } from "../models/User.js";
+import { getIO } from "../utils/socket.js";
 
 // 🔔 Create Notification
 export const createNotification = async (req, res) => {
@@ -36,7 +37,16 @@ export const createNotification = async (req, res) => {
       isRead: false
     });
 
-    return res.status(201).json({ success: true, notification });
+    // Populate sender info for real-time update
+    const populatedNotification = await Notification.findById(notification._id)
+      .populate("sender.userId", "image firstName lastName")
+      .populate("postId", "content image");
+
+    // 🔔 Emit Socket Event
+    const io = getIO();
+    io.to(`user_${recipient._id}`).emit("new-notification", populatedNotification);
+
+    return res.status(201).json({ success: true, notification: populatedNotification });
   } catch (error) {
     console.error("Create Notification Error:", error);
     return res.status(500).json({ success: false, message: "Internal Server Error" });
@@ -74,12 +84,25 @@ export const removeNotification = async (req, res) => {
     const session = await Session.findById(senderSessionId);
     if (!session) return res.status(401).json({ success: false, message: "Unauthorized" });
 
-    await Notification.findOneAndDelete({
+    const deletedNotification = await Notification.findOneAndDelete({
       "recipient.userName": recipientUserName,
       "sender.userId": session.userId,
       type,
       postId
     });
+
+    if (deletedNotification) {
+      // 💔 Emit Socket Event
+      const io = getIO();
+      const recipient = await User.findOne({ userName: recipientUserName });
+      if (recipient) {
+        io.to(`user_${recipient._id}`).emit("remove-notification", {
+          notificationId: deletedNotification._id,
+          type,
+          postId
+        });
+      }
+    }
 
     return res.status(200).json({ success: true, message: "Notification removed" });
   } catch (error) {

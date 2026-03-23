@@ -110,12 +110,12 @@ export default function UserProfile() {
   };
 
   if (loading) return (
-    <div className="flex flex-col items-center pt-20 w-full max-w-2xl px-4">
-      <div className="w-32 h-32 rounded-full skeleton mb-6" />
-      <div className="h-8 w-48 skeleton rounded-xl mb-4" />
-      <div className="h-4 w-32 skeleton rounded-xl mb-12" />
-      <div className="w-full space-y-6">
-        {[1,2].map(i => <div key={i} className="h-64 w-full skeleton rounded-[2.5rem]" />)}
+    <div className="flex flex-col items-center pt-10 sm:pt-20 w-full max-w-2xl px-4 mx-auto">
+      <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full skeleton mb-6" />
+      <div className="h-8 w-40 sm:w-48 skeleton rounded-xl mb-4" />
+      <div className="h-4 w-28 sm:w-32 skeleton rounded-xl mb-8 sm:mb-12" />
+      <div className="w-full space-y-4 sm:space-y-6">
+        {[1,2].map(i => <div key={i} className="h-48 sm:h-64 w-full skeleton rounded-2xl sm:rounded-[2.5rem]" />)}
       </div>
     </div>
   );
@@ -195,36 +195,36 @@ export default function UserProfile() {
       )}
 
       {/* Navigation Header */}
-      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full pt-6 mb-4">
+      <div className="px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto w-full pt-4 sm:pt-6 mb-2 sm:mb-4">
         <button 
           onClick={() => navigate(-1)}
-          className="w-10 h-10 flex items-center justify-center bg-white/[0.03] backdrop-blur-3xl hover:bg-white/[0.08] rounded-full border border-white/10 transition-all active:scale-95 group shadow-xl"
+          className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center bg-white/[0.03] backdrop-blur-3xl hover:bg-white/[0.08] rounded-full border border-white/10 transition-all active:scale-95 group shadow-xl"
           title="Back"
         >
-          <svg className="w-4 h-4 text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/40 group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
           </svg>
         </button>
       </div>
 
       {/* Header Info */}
-      <div className="px-6 lg:px-0 max-w-2xl mx-auto w-full mb-8">
-        <div className="flex items-center gap-6 mb-6">
+      <div className="px-4 sm:px-6 lg:px-0 max-w-2xl mx-auto w-full mb-6 sm:mb-8">
+        <div className="flex items-center gap-4 sm:gap-6 mb-6">
           <div className="relative group shrink-0">
             <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full blur opacity-25" />
             <div 
-              className="relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 cursor-pointer hover:opacity-90 transition-all active:scale-95 shadow-2xl"
+              className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-full overflow-hidden bg-[#080810] border-4 border-[#080810] ring-1 ring-white/10 cursor-pointer hover:opacity-90 transition-all active:scale-95 shadow-2xl"
               onClick={() => setIsImageModalOpen(true)}
             >
-              {profile.image ? <img src={profile.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-3xl md:text-4xl">👤</div>}
+              {profile.image ? <img src={profile.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl md:text-4xl">👤</div>}
             </div>
           </div>
 
           <div className="flex flex-col min-w-0 flex-1">
-            <h1 className="text-xl md:text-2xl font-bold text-white tracking-tight leading-tight truncate">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white tracking-tight leading-tight truncate">
               {profile.firstName} {profile.lastName}
             </h1>
-            <p className="text-indigo-400 font-medium tracking-wide text-xs md:text-sm">@{profile.userName}</p>
+            <p className="text-indigo-400 font-medium tracking-wide text-[10px] sm:text-xs md:text-sm">@{profile.userName}</p>
           </div>
         </div>
 
@@ -252,25 +252,25 @@ export default function UserProfile() {
       </div>
 
       {/* Stats Section */}
-      <div className="w-full flex justify-center mb-10 px-6 lg:px-0">
-        <div className="flex gap-10 py-4 px-10 bg-white/[0.02] rounded-3xl border border-white/5 backdrop-blur-md">
+      <div className="w-full flex justify-center mb-8 sm:mb-10 px-4 sm:px-6 lg:px-0">
+        <div className="flex gap-6 sm:gap-10 py-3 sm:py-4 px-6 sm:px-10 bg-white/[0.02] rounded-2xl sm:rounded-3xl border border-white/5 backdrop-blur-md">
           <div className="flex flex-col items-center">
-            <span className="text-white font-bold text-lg leading-tight">{posts.length}</span>
-            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Posts</span>
+            <span className="text-white font-bold text-base sm:text-lg leading-tight">{posts.length}</span>
+            <span className="text-white/30 text-[9px] sm:text-[10px] uppercase font-black tracking-widest">Posts</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
             onClick={() => fetchConnections('followers')}
           >
-            <span className="text-white font-bold text-lg leading-tight">{followersCount}</span>
-            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Followers</span>
+            <span className="text-white font-bold text-base sm:text-lg leading-tight">{followersCount}</span>
+            <span className="text-white/30 text-[9px] sm:text-[10px] uppercase font-black tracking-widest">Followers</span>
           </div>
           <div 
             className="flex flex-col items-center cursor-pointer hover:opacity-70 transition-opacity"
             onClick={() => fetchConnections('following')}
           >
-            <span className="text-white font-bold text-lg leading-tight">{followingCount}</span>
-            <span className="text-white/30 text-[10px] uppercase font-black tracking-widest">Following</span>
+            <span className="text-white font-bold text-base sm:text-lg leading-tight">{followingCount}</span>
+            <span className="text-white/30 text-[9px] sm:text-[10px] uppercase font-black tracking-widest">Following</span>
           </div>
         </div>
       </div>
@@ -294,14 +294,14 @@ export default function UserProfile() {
       {/* Connections Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-[#0c0c14] border border-white/10 w-full max-w-md rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-              <h2 className="text-xl font-bold text-white capitalize">{modalType}</h2>
+          <div className="bg-[#0c0c14] border border-white/10 w-full max-w-md rounded-3xl sm:rounded-[2.5rem] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-300">
+            <div className="p-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <h2 className="text-lg sm:text-xl font-bold text-white capitalize">{modalType}</h2>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center hover:bg-white/5 transition-colors"
               >
-                <span className="text-2xl text-white/40">&times;</span>
+                <span className="text-xl sm:text-2xl text-white/40">&times;</span>
               </button>
             </div>
             

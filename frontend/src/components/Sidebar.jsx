@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Notifications from './Notifications';
+import { useSocket } from '../context/SocketContext';
 
 const navItems = [
   { name: 'Home', path: '/', icon: (
@@ -48,10 +49,29 @@ export default function Sidebar() {
   
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [profile, setProfile] = useState(null);
+  const socket = useSocket();
+  
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (socket && currentUser) {
+      socket.emit("join-user-room", currentUser._id);
+
+      const handleNewNotification = () => setUnreadCount(prev => prev + 1);
+      const handleRemoveNotification = () => setUnreadCount(prev => Math.max(0, prev - 1));
+
+      socket.on("new-notification", handleNewNotification);
+      socket.on("remove-notification", handleRemoveNotification);
+
+      return () => {
+        socket.off("new-notification", handleNewNotification);
+        socket.off("remove-notification", handleRemoveNotification);
+      };
+    }
+  }, [socket, currentUser]);
 
   const fetchProfile = async () => {
     try {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { useSocket } from '../context/SocketContext';
 
 const navItems = [
   { name: 'Home', path: '/', icon: (
@@ -24,10 +25,30 @@ export default function MobileNav() {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [profile, setProfile] = React.useState(null);
+  const socket = useSocket();
 
   React.useEffect(() => {
     fetchProfile();
   }, []);
+
+  React.useEffect(() => {
+    if (socket && profile) {
+      // Join user room
+      socket.emit("join-user-room", profile._id);
+
+      // Listen for notifications
+      const handleNewNotification = () => setUnreadCount(prev => prev + 1);
+      const handleRemoveNotification = () => setUnreadCount(prev => Math.max(0, prev - 1));
+
+      socket.on("new-notification", handleNewNotification);
+      socket.on("remove-notification", handleRemoveNotification);
+
+      return () => {
+        socket.off("new-notification", handleNewNotification);
+        socket.off("remove-notification", handleRemoveNotification);
+      };
+    }
+  }, [socket, profile]);
 
   const fetchProfile = async () => {
     try {
