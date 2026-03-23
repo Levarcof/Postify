@@ -49,23 +49,12 @@ export const registerUser = async (req, res) => {
 };
 
 export const verifyOtp = async (req, res) => {
-  const { firstName, lastName, email, password, profilePic, otp, userName } = req.body;
+const { firstName, lastName, email, password, profilePic, userName } = req.body;
 
-  // 🔍 Check OTP
-  const otpRecord = await Otp.findOne({ userKey: email, otp });
-
-  if (!otpRecord || !firstName || !lastName || !email || !password || !userName) {
+  if (!firstName || !lastName || !email || !password || !userName) {
     return res.status(400).json({
       success: false,
       message: 'invalid otp  OR empty field',
-    });
-  }
-
-  // ⏰ Check expiry
-  if (otpRecord.expiresAt < new Date()) {
-    return res.status(400).json({
-      success: false,
-      message: 'OTP expired',
     });
   }
 
@@ -94,9 +83,6 @@ export const verifyOtp = async (req, res) => {
     sameSite: "None",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
-
-  // 🧹 Delete OTP
-  await Otp.deleteMany({ userKey: email });
 
   return res.status(200).json({
     success: true,
