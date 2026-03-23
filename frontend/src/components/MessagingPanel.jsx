@@ -54,11 +54,11 @@ export default function MessagingPanel() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-2 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
         {loading ? (
           <div className="flex flex-col gap-4 p-2 animate-pulse">
             {[1,2,3,4,5].map(i => (
-              <div key={i} className="h-20 bg-white/5 rounded-[2rem]" />
+              <div key={i} className="h-20 bg-white/5 rounded-[2.2rem]" />
             ))}
           </div>
         ) : users.length > 0 ? (
@@ -66,40 +66,44 @@ export default function MessagingPanel() {
             <div 
               key={user._id} 
               onClick={() => navigate(`/conversation/${user.conversationId}`)}
-              className="flex items-center gap-4 p-4 rounded-[2rem] hover:bg-white/[0.04] transition-all duration-300 cursor-pointer group border border-transparent hover:border-white/5 active:scale-[0.98]"
+              className="flex items-center gap-4 p-4 rounded-[2.2rem] hover:bg-white/[0.04] transition-all duration-300 cursor-pointer group border border-transparent hover:border-white/5 active:scale-[0.98] shadow-sm"
             >
-              <div className="relative">
-                <div className="w-14 h-14 rounded-full overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
+              <div className="relative shrink-0">
+                <div className="w-14 h-14 rounded-[1.8rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
                   {user.image ? <img src={user.image} alt={user.userName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl text-white/20">👤</div>}
                 </div>
-                <span className="absolute bottom-0.5 right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-[#0c0c14]" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
               </div>
-              <div className="flex flex-col min-w-0 flex-1">
-                <div className="flex items-center justify-between mb-0.5">
-                  <span className="text-white text-[15px] font-bold truncate group-hover:text-indigo-100 transition-colors">
+              <div className="flex flex-col min-w-0 flex-1 py-1">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-white text-[15px] font-extrabold truncate group-hover:text-indigo-100 transition-colors">
                     {user.firstName} {user.lastName}
                   </span>
                   {user.lastMessage && (
-                    <span className="text-[10px] text-white/20 group-hover:text-white/40 transition-colors uppercase font-black tracking-tighter shrink-0">
+                    <span className="text-[10px] text-white/20 group-hover:text-white/40 transition-colors uppercase font-black tracking-tighter shrink-0 bg-white/5 px-1.5 py-0.5 rounded-lg border border-white/5">
                       {new Date(user.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   )}
                 </div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className={`text-xs truncate font-medium flex-1 ${user.unreadCount > 0 ? 'text-indigo-400 font-bold' : 'text-white/30'}`}>
+                <div className="flex items-center justify-between gap-3">
+                  <div className={`text-[13px] break-words font-medium flex-1 ${user.unreadCount > 0 ? 'text-indigo-200 font-bold' : 'text-white/30'}`}>
                     {user.lastMessage ? (
-                      <>
-                        {user.lastMessage.sender === currentUser?._id && <span className="text-indigo-400">You: </span>}
+                      <div className="line-clamp-2">
+                        {user.lastMessage.sender === currentUser?._id && <span className="text-indigo-400 font-bold">You </span>}
                         {user.lastMessage.text}
-                        {user.lastMessage.sender === currentUser?._id && user.lastMessage.seen && (
-                          <span className="ml-1.5 text-[10px] text-emerald-500 font-bold italic uppercase tracking-tighter shrink-0">Seen</span>
-                        )}
-                      </>
-                    ) : `@${user.userName}`}
-                  </span>
+                      </div>
+                    ) : <span className="italic opacity-50">Say hello!</span>}
+                  </div>
                   {user.unreadCount > 0 && (
-                    <div className="w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
-                      <span className="text-[10px] font-black text-[#0c0c14]">{user.unreadCount}</span>
+                    <div className="min-w-[1.25rem] h-5 px-1.5 bg-indigo-500 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-indigo-600/40">
+                      <span className="text-[10px] font-black text-white">{user.unreadCount}</span>
+                    </div>
+                  )}
+                  {user.lastMessage && user.lastMessage.sender === currentUser?._id && user.lastMessage.seen && user.unreadCount === 0 && (
+                    <div className="shrink-0" title="Seen">
+                      <svg className="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
                     </div>
                   )}
                 </div>
