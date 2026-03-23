@@ -24,6 +24,7 @@ const navItems = [
 export default function MobileNav() {
   const location = useLocation();
   const [unreadCount, setUnreadCount] = React.useState(0);
+  const [unreadMsgCount, setUnreadMsgCount] = React.useState(0);
   const [profile, setProfile] = React.useState(null);
   const socket = useSocket();
 
@@ -45,13 +46,22 @@ export default function MobileNav() {
       const handleNewNotification = () => setUnreadCount(prev => prev + 1);
       const handleRemoveNotification = () => setUnreadCount(prev => Math.max(0, prev - 1));
 
+      // Listen for messages
+      const handleNewMessage = (message) => {
+        if (String(message.sender?._id || message.sender) !== String(profile._id)) {
+          setUnreadMsgCount(prev => prev + 1);
+        }
+      };
+
       socket.on("new-notification", handleNewNotification);
       socket.on("remove-notification", handleRemoveNotification);
+      socket.on("new-message", handleNewMessage);
 
       return () => {
         socket.off("connect", joinRoom);
         socket.off("new-notification", handleNewNotification);
         socket.off("remove-notification", handleRemoveNotification);
+        socket.off("new-message", handleNewMessage);
       };
     }
   }, [socket, profile]);
@@ -59,7 +69,15 @@ export default function MobileNav() {
   React.useEffect(() => {
     const handleRead = () => setUnreadCount(0);
     window.addEventListener('notifications-read', handleRead);
-    return () => window.removeEventListener('notifications-read', handleRead);
+    
+    // Listen for messages read 
+    const handleMsgRead = () => fetchUnreadMsgCount();
+    window.addEventListener('messages-read', handleMsgRead);
+    
+    return () => {
+      window.removeEventListener('notifications-read', handleRead);
+      window.removeEventListener('messages-read', handleMsgRead);
+    };
   }, []);
 
   const fetchProfile = async () => {
@@ -68,6 +86,7 @@ export default function MobileNav() {
       if (res.data.success) {
         setProfile(res.data.user);
         fetchUnreadCount(res.data.user.userName);
+        fetchUnreadMsgCount();
       }
     } catch (err) {
       console.error("Fetch profile error:", err);
@@ -83,6 +102,18 @@ export default function MobileNav() {
       }
     } catch (err) {
       console.error("Fetch unread count error:", err);
+    }
+  };
+
+  const fetchUnreadMsgCount = async () => {
+    try {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/conversationUsers`, { withCredentials: true });
+      if (res.data.success) {
+        const totalUnread = res.data.users.reduce((sum, user) => sum + (user.unreadCount || 0), 0);
+        setUnreadMsgCount(totalUnread);
+      }
+    } catch (err) {
+      console.error("Fetch msg unread count error:", err);
     }
   };
 
@@ -112,7 +143,11 @@ export default function MobileNav() {
                 <div className={`transition-all duration-500 ${isActive ? 'translate-y-[-4px]' : 'translate-y-0'}`}>
                   {item.icon}
                   {item.name === 'Notifications' && unreadCount > 0 && (
-                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-[#0c0c14] shadow-[0_0_10px_rgba(99,102,241,0.8)]" />
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-[#0c0c14] shadow-[0_0_10px_rgba(244,63,94,0.8)]" />
+                  )}
+                  {item.name === 'Messages' && unreadMsgCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-indigo-500 rounded-full border-2 border-[#0c0c14] shadow-[0_0_10px_rgba(99,102,241,0.8)] flex items-center justify-center">
+                    </span>
                   )}
                 </div>
                 

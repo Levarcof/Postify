@@ -120,6 +120,7 @@ export default function Conversation() {
         setConversations(prev => prev.map(conv => 
           String(conv.conversationId) === String(id) ? { ...conv, unreadCount: 0 } : conv
         ));
+        window.dispatchEvent(new Event('messages-read'));
       }
     } catch (err) {
       console.error("Mark as seen error:", err);
@@ -259,14 +260,14 @@ export default function Conversation() {
                   }`}
               >
                 <div className="relative shrink-0">
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[1.8rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
-                    {user.image ? <img src={user.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl">👤</div>}
+                  <div className="w-12 h-12 rounded-[1.2rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
+                    {user.image ? <img src={user.image} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
                   </div>
-                  <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
                 </div>
-                <div className="flex flex-col min-w-0 flex-1 py-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-extrabold text-[15px] sm:text-[16px] truncate text-white/90 group-hover:text-white transition-colors">
+                <div className="flex flex-col min-w-0 flex-1 py-0.5">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <span className="font-extrabold text-[14.5px] truncate text-white/90 group-hover:text-white transition-colors">
                       {user.firstName} {user.lastName}
                     </span>
                     {user.lastMessage && (
@@ -321,37 +322,37 @@ export default function Conversation() {
         {conversationId ? (
           <>
             {/* Chat Header */}
-            <div className="p-4 sm:p-5 border-b border-white/5 flex items-center justify-between bg-[#0c0c14]/60 backdrop-blur-3xl z-20">
-              <div className="flex items-center gap-4">
+            <div className="p-3 sm:p-4 border-b border-white/5 flex items-center justify-between bg-[#0c0c14]/60 backdrop-blur-3xl z-20">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => navigate('/messages')}
-                  className="flex md:hidden items-center justify-center w-11 h-11 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all active:scale-95 shadow-xl shrink-0 group"
+                  className="flex md:hidden items-center justify-center w-10 h-10 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all active:scale-95 shadow-xl shrink-0 group"
                 >
                   <svg className="w-4 h-4 text-white/60 group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
 
-                <div className="flex items-center gap-4 cursor-pointer group" onClick={() => {
+                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => {
                   const targetUser = conversations.find(c => String(c.conversationId) === String(conversationId));
                   if (targetUser) navigate(`/user/${targetUser.userName}`);
                 }}>
                   <div className="relative shrink-0">
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-[1.4rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
+                    <div className="w-10 h-10 md:w-11 md:h-11 rounded-xl overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
                       {conversations.find(c => String(c.conversationId) === String(conversationId))?.image ? (
                         <img src={conversations.find(c => String(c.conversationId) === String(conversationId)).image} alt="" className="w-full h-full object-cover" />
-                      ) : <div className="w-full h-full flex items-center justify-center text-xl">👤</div>}
+                      ) : <div className="w-full h-full flex items-center justify-center text-lg">👤</div>}
                     </div>
-                    <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
+                    <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-[2px] border-[#0c0c14]" />
                   </div>
                   <div className="min-w-0">
-                    <div className="font-black text-white text-[16px] md:text-lg tracking-tight group-hover:text-indigo-400 transition-colors leading-none truncate">
+                    <div className="font-bold text-white text-[15px] md:text-[16px] tracking-tight group-hover:text-indigo-400 transition-colors leading-none truncate">
                       {conversations.find(c => String(c.conversationId) === String(conversationId))?.firstName} {conversations.find(c => String(c.conversationId) === String(conversationId))?.lastName}
                     </div>
-                    <div className="flex items-center gap-1.5 mt-1.5">
+                    {/* <div className="flex items-center gap-1.5 mt-1.5">
                       <span className="flex w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
                       <span className="text-[10px] font-bold text-emerald-500/80 uppercase tracking-widest">Active Now</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -368,11 +369,11 @@ export default function Conversation() {
             </div>
 
             {/* Messages Area */}
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 md:p-10 space-y-4 sm:space-y-6 custom-scrollbar scroll-smooth">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-5 md:p-6 space-y-3 custom-scrollbar scroll-smooth">
               {messages.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center opacity-20 pointer-events-none">
-                  <div className="w-24 h-24 border-2 border-dashed border-white rounded-full flex items-center justify-center text-4xl mb-4">✨</div>
-                  <p className="text-sm font-bold uppercase tracking-[0.3em]">Start a new conversation</p>
+                  <div className="w-20 h-20 border-2 border-dashed border-white rounded-full flex items-center justify-center text-3xl mb-4">✨</div>
+                  <p className="text-xs font-bold uppercase tracking-[0.2em]">Start a new conversation</p>
                 </div>
               ) : (
                 messages.map((msg, idx) => {
@@ -381,13 +382,13 @@ export default function Conversation() {
                   const isSameSender = String(prevMsg?.sender?._id || prevMsg?.sender) === String(msg.sender?._id || msg.sender);
 
                   return (
-                    <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} ${isSameSender ? "-mt-3" : "mt-2"} ${idx === messages.length - 1 ? "mb-10" : ""} relative animate-in fade-in slide-in-from-bottom-2 duration-500`}>
-                      <div className={`max-w-[85%] md:max-w-[70%] p-4 md:p-5 text-[14px] md:text-[15px] leading-relaxed relative break-words overflow-wrap-anywhere ${isMine
-                          ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white rounded-[2rem] rounded-tr-[0.5rem] shadow-xl shadow-indigo-900/20 font-medium"
-                          : "bg-white/[0.05] text-white/90 rounded-[2rem] rounded-tl-[0.5rem] border border-white/10 backdrop-blur-md font-medium"
+                    <div key={idx} className={`flex ${isMine ? "justify-end" : "justify-start"} ${isSameSender ? "-mt-2" : "mt-3"} ${idx === messages.length - 1 ? "mb-6" : ""} relative animate-in fade-in slide-in-from-bottom-2 duration-500`}>
+                      <div className={`max-w-[85%] md:max-w-[65%] p-3 sm:p-3.5 sm:px-4 text-[13.5px] md:text-[14px] leading-relaxed relative break-words overflow-wrap-anywhere ${isMine
+                          ? "bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white rounded-[1.5rem] rounded-tr-[0.3rem] shadow-md shadow-indigo-900/10 font-medium"
+                          : "bg-white/[0.05] text-white/90 rounded-[1.5rem] rounded-tl-[0.3rem] border border-white/10 backdrop-blur-md font-medium"
                         }`}>
                         {msg.text}
-                        <div className={`absolute bottom-1 ${isMine ? "-left-16" : "-right-16"} text-[9px] font-black text-white/10 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity`}>
+                        <div className={`absolute bottom-1 ${isMine ? "-left-14" : "-right-14"} text-[9px] font-bold text-white/20 uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity`}>
                           {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -405,26 +406,26 @@ export default function Conversation() {
             </div>
 
             {/* Input Wrapper */}
-            <div className="p-4 sm:p-6 md:p-10 bg-gradient-to-t from-[#080810] via-[#080810]/95 to-transparent z-20">
+            <div className="p-3 sm:p-4 md:p-6 bg-[#0c0c14]/90 backdrop-blur-md z-20 border-t border-white/5 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
               <form
                 onSubmit={handleSendMessage}
-                className="flex items-center gap-2 sm:gap-4 bg-white/[0.04] border border-white/10 rounded-[2.2rem] p-2 pl-5 pr-2.5 shadow-2xl focus-within:border-indigo-500/40 focus-within:bg-white/[0.06] transition-all duration-500 backdrop-blur-3xl group"
+                className="flex items-center gap-2 sm:gap-3 bg-white/[0.04] border border-white/10 rounded-[1.8rem] p-1.5 pl-4 pr-1.5 shadow-inner focus-within:border-indigo-500/40 focus-within:bg-white/[0.06] transition-all duration-300 group"
               >
-                <button type="button" className="text-white/20 hover:text-indigo-400 transition-all p-2 hover:scale-110 active:scale-90">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
+                <button type="button" className="text-white/20 hover:text-indigo-400 transition-all p-1.5 hover:scale-110 active:scale-90">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" /></svg>
                 </button>
                 <input
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..."
-                  className="flex-1 bg-transparent border-none outline-none py-3 sm:py-4 text-[15px] sm:text-base text-white placeholder-white/20 font-medium"
+                  className="flex-1 bg-transparent border-none outline-none py-2.5 sm:py-3 text-[14px] text-white placeholder-white/20 font-medium"
                 />
                 <button
                   type="submit"
                   disabled={!newMessage.trim()}
-                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale p-3.5 sm:p-4 rounded-full transition-all active:scale-90 shadow-xl shadow-indigo-600/30 flex items-center justify-center group-focus-within:rotate-[-5deg]"
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-20 disabled:grayscale p-3 rounded-full transition-all active:scale-95 shadow-md shadow-indigo-600/20 flex items-center justify-center"
                 >
-                  <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 </button>

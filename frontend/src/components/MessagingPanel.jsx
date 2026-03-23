@@ -106,10 +106,10 @@ export default function MessagingPanel() {
               className="flex items-center gap-4 p-4 rounded-[2.2rem] hover:bg-white/[0.04] transition-all duration-300 cursor-pointer group border border-transparent hover:border-white/5 active:scale-[0.98] shadow-sm"
             >
               <div className="relative shrink-0">
-                <div className="w-14 h-14 rounded-[1.8rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
-                  {user.image ? <img src={user.image} alt={user.userName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-2xl text-white/20">👤</div>}
+                <div className="w-12 h-12 rounded-[1.3rem] overflow-hidden bg-white/5 ring-1 ring-white/10 group-hover:ring-indigo-500/30 transition-all duration-500">
+                  {user.image ? <img src={user.image} alt={user.userName} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-xl text-white/20">👤</div>}
                 </div>
-                <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
+                <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 rounded-full border-[3px] border-[#0c0c14]" />
               </div>
               <div className="flex flex-col min-w-0 flex-1 py-1">
                 <div className="flex items-center justify-between mb-1">
