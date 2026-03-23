@@ -33,8 +33,13 @@ export default function MobileNav() {
 
   React.useEffect(() => {
     if (socket && profile) {
-      // Join user room
-      socket.emit("join-user-room", profile._id);
+      const joinRoom = () => socket.emit("join-user-room", profile._id);
+
+      if (socket.connected) {
+        joinRoom();
+      }
+
+      socket.on("connect", joinRoom);
 
       // Listen for notifications
       const handleNewNotification = () => setUnreadCount(prev => prev + 1);
@@ -44,11 +49,18 @@ export default function MobileNav() {
       socket.on("remove-notification", handleRemoveNotification);
 
       return () => {
+        socket.off("connect", joinRoom);
         socket.off("new-notification", handleNewNotification);
         socket.off("remove-notification", handleRemoveNotification);
       };
     }
   }, [socket, profile]);
+
+  React.useEffect(() => {
+    const handleRead = () => setUnreadCount(0);
+    window.addEventListener('notifications-read', handleRead);
+    return () => window.removeEventListener('notifications-read', handleRead);
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -85,6 +97,11 @@ export default function MobileNav() {
           <NavLink
             key={item.name}
             to={item.path}
+            onClick={() => {
+              if (item.name === 'Notifications') {
+                setUnreadCount(0);
+              }
+            }}
             className={({ isActive }) => `
               relative flex flex-col items-center justify-center h-full w-14 transition-all duration-500
               ${isActive ? "text-indigo-400 scale-110" : "text-white/20 hover:text-white/40"}

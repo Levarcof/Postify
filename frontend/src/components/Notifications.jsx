@@ -71,6 +71,7 @@ export default function Notifications({ currentUser, isSidebar = false, onClose 
   const markAsRead = async (userName) => {
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/api/markAsRead`, { userName });
+      window.dispatchEvent(new Event('notifications-read'));
     } catch (err) {
       console.warn("Mark as read error:", err);
     }

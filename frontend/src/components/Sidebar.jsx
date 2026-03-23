@@ -58,7 +58,13 @@ export default function Sidebar() {
 
   useEffect(() => {
     if (socket && currentUser) {
-      socket.emit("join-user-room", currentUser._id);
+      const joinRoom = () => socket.emit("join-user-room", currentUser._id);
+      
+      if (socket.connected) {
+        joinRoom();
+      }
+      
+      socket.on("connect", joinRoom);
 
       const handleNewNotification = () => setUnreadCount(prev => prev + 1);
       const handleRemoveNotification = () => setUnreadCount(prev => Math.max(0, prev - 1));
@@ -67,11 +73,18 @@ export default function Sidebar() {
       socket.on("remove-notification", handleRemoveNotification);
 
       return () => {
+        socket.off("connect", joinRoom);
         socket.off("new-notification", handleNewNotification);
         socket.off("remove-notification", handleRemoveNotification);
       };
     }
   }, [socket, currentUser]);
+
+  useEffect(() => {
+    const handleRead = () => setUnreadCount(0);
+    window.addEventListener('notifications-read', handleRead);
+    return () => window.removeEventListener('notifications-read', handleRead);
+  }, []);
 
   const fetchProfile = async () => {
     try {

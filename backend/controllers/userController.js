@@ -3,6 +3,7 @@ import { Post } from "../models/Posts.js";
 import { Session } from "../models/Session.js";
 import { Connection } from "../models/Connection.js";
 import { Notification } from "../models/Notification.js";
+import { getIO } from "../utils/socket.js";
 
 export const getProfile = async (req, res) => {
   try {
@@ -154,11 +155,18 @@ export const followUser = async (req, res) => {
     });
 
     if (!existingNotification) {
-      await Notification.create({
+      const newNotification = await Notification.create({
         recipient: { userId: followedUser._id, userName: followedUser.userName },
         sender: { userId: currentUser._id, userName: currentUser.userName },
-        type: "follow"
+        type: "follow",
+        isRead: false
       });
+      
+      const populatedNotification = await Notification.findById(newNotification._id)
+        .populate("sender.userId", "image firstName lastName");
+        
+      const io = getIO();
+      io.to(`user_${followedUser._id}`).emit("new-notification", populatedNotification);
     }
 
     return res.status(200).json({
@@ -218,11 +226,19 @@ export const unfollowUser = async (req, res) => {
     );
 
     // 🔔 Remove Notification
-    await Notification.findOneAndDelete({
+    const deletedNotification = await Notification.findOneAndDelete({
       "recipient.userId": userId,
       "sender.userId": currentUserId,
       type: "follow"
     });
+    
+    if (deletedNotification) {
+      const io = getIO();
+      io.to(`user_${userId}`).emit("remove-notification", {
+        notificationId: deletedNotification._id,
+        type: "follow"
+      });
+    }
 
     return res.status(200).json({
       success: true,
