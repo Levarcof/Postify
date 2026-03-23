@@ -84,6 +84,9 @@ export default function Conversation() {
                 updatedAt: new Date(),
                 unreadCount: (conversationId === msgConvId) ? 0 : conv.unreadCount + 1
              });
+           } else {
+             // If we receive a message for a completely new chat not in our list, refresh the list completely
+             fetchConversations();
            }
            return updatedConversations;
         });
@@ -158,8 +161,22 @@ export default function Conversation() {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        // Clear input immediately, logic for optimistic visual updates is now handled by the socket listener catching the server emit
+        // Optimistic UI update for the sender
+        setMessages(prev => {
+          const exists = prev.find(m => m._id === res.data.message._id);
+          return exists ? prev : [...prev, res.data.message];
+        });
         setNewMessage("");
+        
+        // Optimistically update conversation list for sender
+        setConversations(prev => {
+          const others = prev.filter(c => String(c.conversationId) !== String(conversationId));
+          const current = prev.find(c => String(c.conversationId) === String(conversationId));
+          if (current) {
+            return [{ ...current, lastMessage: res.data.message, updatedAt: new Date() }, ...others];
+          }
+          return prev;
+        });
       }
     } catch (err) {
       console.error("Send message error:", err);

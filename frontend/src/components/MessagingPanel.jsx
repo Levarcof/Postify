@@ -50,8 +50,14 @@ export default function MessagingPanel() {
           updated.unshift({
             ...conv,
             lastMessage: message,
-            unreadCount: conv.unreadCount + 1
+            unreadCount: (conv.unreadCount || 0) + 1
           });
+        } else {
+          // New conversation not in list
+          axios.get(`${import.meta.env.VITE_API_URL}/api/conversationUsers`, { withCredentials: true })
+            .then(res => {
+              if (res.data.success) setUsers(res.data.users);
+            }).catch(console.error);
         }
         return updated;
       });
