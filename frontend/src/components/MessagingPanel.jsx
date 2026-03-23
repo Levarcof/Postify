@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-
+import { useSocket } from '../context/SocketContext';
 export default function MessagingPanel() {
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const socket = useSocket();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -32,6 +33,36 @@ export default function MessagingPanel() {
     fetchUsers();
     fetchCurrentUser();
   }, []);
+
+  useEffect(() => {
+    if (!socket || !currentUser) return;
+
+    const handleNewMessage = (message) => {
+      const msgConvId = String(message.conversationId?._id || message.conversationId);
+      
+      setUsers(prev => {
+        let updated = [...prev];
+        const idx = updated.findIndex(c => String(c.conversationId) === msgConvId);
+        
+        if (idx !== -1) {
+          const conv = updated[idx];
+          updated.splice(idx, 1);
+          updated.unshift({
+            ...conv,
+            lastMessage: message,
+            unreadCount: conv.unreadCount + 1
+          });
+        }
+        return updated;
+      });
+    };
+
+    socket.on("new-message", handleNewMessage);
+
+    return () => {
+      socket.off("new-message", handleNewMessage);
+    }
+  }, [socket, currentUser]);
 
   return (
     <aside className="fixed right-0 top-0 h-screen w-80 lg:w-96 bg-white/[0.01] backdrop-blur-3xl border-l border-white/[0.08] hidden xl:flex flex-col z-50 overflow-hidden shadow-2xl animate-in slide-in-from-right duration-700">

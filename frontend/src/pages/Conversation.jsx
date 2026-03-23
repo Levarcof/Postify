@@ -43,30 +43,53 @@ export default function Conversation() {
     if (socket) {
       // Always join user room if possible
       if (currentUser?._id) {
-        console.log("Emitting join-user-room for:", currentUser._id);
         socket.emit("join-user-room", currentUser._id);
       }
 
       // If in a specific conversation, join that room too
       if (conversationId) {
-        console.log("Emitting join-room for:", conversationId);
         socket.emit("join-room", conversationId);
         fetchMessages(conversationId);
         markAsSeen(conversationId);
       }
 
-      socket.on("new-message", (message) => {
-        console.log("Received new-message event:", message);
+      const handleNewMessage = (message) => {
         const msgConvId = String(message.conversationId?._id || message.conversationId);
         
+        // 1. If the message belongs to the CURRENT open chat, append it visually
         if (conversationId && msgConvId === String(conversationId)) {
-          fetchMessages(conversationId);
-          markAsSeen(conversationId);
+          // Add to messages array if it's not already there (prevent duplicates)
+          setMessages((prev) => {
+             const exists = prev.find(m => m._id === message._id);
+             return exists ? prev : [...prev, message];
+          });
+          // Optimistically mark as seen since we have it open
+          if (String(message.sender._id || message.sender) !== String(currentUser?._id)) {
+            markAsSeen(conversationId);
+          }
         }
-        fetchConversations();
-      });
 
-      socket.on("message-seen", ({ conversationId: seenChatId }) => {
+        // 2. Always update the sidebar conversation list to bubble up the latest chat
+        setConversations(prev => {
+           let updatedConversations = [...prev];
+           const index = updatedConversations.findIndex(c => String(c.conversationId) === msgConvId);
+           
+           if (index !== -1) {
+             const conv = updatedConversations[index];
+             updatedConversations.splice(index, 1); // remove it
+             // push to top and update unread count if we are NOT in that chat
+             updatedConversations.unshift({
+                ...conv,
+                lastMessage: message,
+                updatedAt: new Date(),
+                unreadCount: (conversationId === msgConvId) ? 0 : conv.unreadCount + 1
+             });
+           }
+           return updatedConversations;
+        });
+      };
+
+      const handleMessageSeen = ({ conversationId: seenChatId }) => {
         const sChatId = String(seenChatId);
         if (conversationId && sChatId === String(conversationId)) {
           setMessages(prev => prev.map(m => ({ ...m, seen: true })));
@@ -74,11 +97,14 @@ export default function Conversation() {
         setConversations(prev => prev.map(c => 
           String(c.conversationId) === sChatId ? { ...c, lastMessage: { ...c.lastMessage, seen: true } } : c
         ));
-      });
+      };
+
+      socket.on("new-message", handleNewMessage);
+      socket.on("message-seen", handleMessageSeen);
 
       return () => {
-        socket.off("new-message");
-        socket.off("message-seen");
+        socket.off("new-message", handleNewMessage);
+        socket.off("message-seen", handleMessageSeen);
       }
     }
   }, [conversationId, socket, currentUser]);
@@ -132,16 +158,8 @@ export default function Conversation() {
       }, { withCredentials: true });
 
       if (res.data.success) {
-        setMessages(prev => [...prev, res.data.message]);
+        // Clear input immediately, logic for optimistic visual updates is now handled by the socket listener catching the server emit
         setNewMessage("");
-        setConversations(prev => {
-          const others = prev.filter(c => String(c.conversationId) !== String(conversationId));
-          const current = prev.find(c => String(c.conversationId) === String(conversationId));
-          if (current) {
-            return [{ ...current, lastMessage: res.data.message, updatedAt: new Date() }, ...others];
-          }
-          return prev;
-        });
       }
     } catch (err) {
       console.error("Send message error:", err);
