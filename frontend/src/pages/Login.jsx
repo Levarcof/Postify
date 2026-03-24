@@ -162,7 +162,7 @@ export default function Login() {
                 <FloatingInput label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" />
 
                 {/* forgot link */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                   <button
                     type="button"
                     onClick={() => setStep(1)}
@@ -170,7 +170,7 @@ export default function Login() {
                   >
                     Forgot password?
                   </button>
-                </div>
+                </div> */}
 
                 <button
                   onClick={handleLogin}
