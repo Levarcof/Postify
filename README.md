@@ -29,11 +29,11 @@ Postify is a modern, full-stack social media web application designed for creato
 
 | Layer | Technology | Description |
 | :--- | :--- | :--- |
-| **Frontend** | React.js / Next.js | Modern, SEO-friendly component-based architectural rendering. |
-| **Backend** | Next.js API Routes / Node.js | Robust, scalable serverless functions and endpoint handling. |
-| **Database** | MongoDB | Highly flexible, document-driven NoSQL database. |
-| **ODM** | Mongoose | Elegant MongoDB object modeling for Node.js. |
-| **Security** | JWT & BcryptJS | Secure token-based authentication and secure credential hashing. |
+| **Frontend** | React.js| Modern, SEO-friendly component-based architectural rendering. |
+| **Backend** | Node.js | express.js |
+| **Database** | MongoDB. |
+| **ODM** | Mongoose |
+| **Security** | JWT & BcryptJS|
 
 ---
 
